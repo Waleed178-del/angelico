@@ -1,0 +1,367 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Angelico · The Navy Two Piece</title>
+<meta name="description" content="A navy worsted two piece, tailored.">
+<!-- Frame 1 is the hero. Preload only the orientation that will actually be shown. -->
+<link rel="preload" as="image" href="frames/desktop/frame_0001.webp" media="(orientation: landscape)" fetchpriority="high">
+<link rel="preload" as="image" href="frames/mobile/frame_0001.webp" media="(orientation: portrait)" fetchpriority="high">
+<style>
+  :root {
+    --wool-rgb: 13, 20, 36;          /* replaced at runtime by the mean color of the last frame */
+    --ink: #ece6dc;
+    --ink-soft: rgba(236, 230, 220, 0.62);
+    --hair: rgba(236, 230, 220, 0.22);
+    --serif: "Didot", "Bodoni 72", "Bodoni MT", "Playfair Display", "Times New Roman", serif;
+    --sans: "Helvetica Neue", "Inter", Arial, system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: rgb(var(--wool-rgb)); color: var(--ink); }
+  body { font-family: var(--sans); -webkit-font-smoothing: antialiased; }
+
+  .brand {
+    position: fixed; z-index: 10; top: 0; left: 0; right: 0;
+    padding: 22px clamp(16px, 4vw, 48px);
+    display: flex; justify-content: space-between; align-items: baseline;
+    font-size: 11px; letter-spacing: 0.32em; text-transform: uppercase;
+    pointer-events: none;
+  }
+  .brand b { font-family: var(--serif); font-weight: 400; font-size: 15px; letter-spacing: 0.42em; }
+
+  /* ---------- hero: pinned canvas ---------- */
+  #hero {
+    position: relative; height: 100vh; overflow: hidden;
+    background: #0b0d12 center / cover no-repeat;   /* poster until the canvas paints */
+  }
+  @media (orientation: landscape) { #hero { background-image: url("frames/desktop/frame_0001.webp"); } }
+  @media (orientation: portrait)  { #hero { background-image: url("frames/mobile/frame_0001.webp"); } }
+  #seq { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+
+  .hero-copy {
+    position: absolute; left: clamp(16px, 5vw, 72px); bottom: clamp(56px, 11vh, 120px);
+    max-width: 30rem;
+  }
+  .eyebrow { margin: 0 0 14px; font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--ink-soft); }
+  h1 {
+    margin: 0; font-family: var(--serif); font-weight: 400;
+    font-size: clamp(34px, 5.4vw, 76px); line-height: 1.02; letter-spacing: -0.01em;
+  }
+  .hint {
+    position: absolute; left: 50%; bottom: 22px; transform: translateX(-50%);
+    font-size: 10px; letter-spacing: 0.34em; text-transform: uppercase; color: var(--ink-soft);
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
+  }
+  .hint::after { content: ""; width: 1px; height: 34px; background: var(--hair); }
+  .loader { position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: transparent; }
+  .loader span { display: block; height: 100%; width: 0; background: var(--hair); transition: width .25s linear, opacity .6s ease; }
+
+  /* ---------- next section: continues the final frame ----------
+     The canvas ends on frame 180 (wool filling the frame). This section's first viewport
+     shows the same image at the same cover scale, flipped vertically, so the seam is the
+     image's bottom row meeting itself. It then dissolves into the frame's mean color. */
+  #cloth { position: relative; isolation: isolate; min-height: 170vh; background: rgb(var(--wool-rgb)); }
+  #cloth::before, #cloth::after {
+    content: ""; position: absolute; left: 0; right: 0; top: 0; height: 100vh; z-index: -1; pointer-events: none;
+  }
+  #cloth::before { background: var(--last-frame, none) center / cover no-repeat; transform: scaleY(-1); }
+  #cloth::after {
+    background: linear-gradient(to bottom, rgba(var(--wool-rgb), 0) 0%, rgba(var(--wool-rgb), 0.5) 45%, rgb(var(--wool-rgb)) 100%);
+  }
+  .cloth-copy {
+    padding: 62vh clamp(16px, 8vw, 120px) 20vh;
+    display: grid; grid-template-columns: minmax(0, 34rem); gap: 22px;
+  }
+  .cloth-copy h2 { margin: 0; font-family: var(--serif); font-weight: 400; font-size: clamp(30px, 4.2vw, 58px); line-height: 1.05; }
+  .cloth-copy p { margin: 0; font-size: 16px; line-height: 1.7; color: var(--ink-soft); }
+  .specs { list-style: none; margin: 18px 0 0; padding: 0; border-top: 1px solid var(--hair); }
+  .specs li {
+    display: flex; justify-content: space-between; gap: 16px; padding: 14px 0;
+    border-bottom: 1px solid var(--hair); font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase;
+  }
+  .specs li span:last-child { color: var(--ink-soft); }
+  footer { padding: 48px clamp(16px, 4vw, 48px); font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink-soft); }
+
+  /* ---------- reduced motion: static hero, no pin ---------- */
+  .reduced .hint, .reduced .loader { display: none; }
+  .reduced #cloth::before { display: none; }
+  .reduced #hero::after {
+    content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 30vh; pointer-events: none;
+    background: linear-gradient(to bottom, rgba(var(--wool-rgb), 0), rgb(var(--wool-rgb)));
+  }
+  @media (prefers-reduced-motion: reduce) { .loader span { transition: none; } }
+</style>
+</head>
+<body>
+  <header class="brand"><b>Angelico</b><span>Sartoria</span></header>
+
+  <section id="hero" aria-label="A navy two piece suit on a mannequin, seen in a slow turn">
+    <canvas id="seq" aria-hidden="true"></canvas>
+    <div class="hero-copy">
+      <p class="eyebrow">Made to measure</p>
+      <h1>The Navy<br>Two Piece</h1>
+    </div>
+    <div class="hint">Scroll</div>
+    <div class="loader" aria-hidden="true"><span></span></div>
+  </section>
+
+  <!-- Replace the copy below with verified product facts before launch. -->
+  <section id="cloth">
+    <div class="cloth-copy">
+      <h2>The cloth</h2>
+      <p>A fine navy worsted, chosen for its quiet sheen and the way it holds a line from shoulder to hem.</p>
+      <ul class="specs">
+        <li><span>Cloth</span><span>Worsted wool</span></li>
+        <li><span>Lapel</span><span>Peak</span></li>
+        <li><span>Fastening</span><span>Single breasted, two button</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>Angelico</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script>
+(() => {
+  'use strict';
+
+  const CONFIG = {
+    base: 'frames',
+    count: 180,
+    formats: ['webp'],      // after exporting AVIF use ['avif', 'webp']; first that loads wins
+    scrollVh: 300,          // scroll distance that maps to frames 1..180
+    keyStep: 6,             // progressive pass 2: every 6th frame
+    parallel: 6,            // concurrent requests, roughly one HTTP/1.1 host's worth
+    maxDpr: 2,              // frames are 2560 px wide; above 2x only burns fill rate
+    fallbackRgb: '13, 20, 36',
+  };
+  const N = CONFIG.count;
+
+  const root = document.documentElement;
+  const hero = document.getElementById('hero');
+  const cloth = document.getElementById('cloth');
+  const canvas = document.getElementById('seq');
+  const ctx = canvas.getContext('2d', { alpha: false });
+  const bar = document.querySelector('.loader span');
+  const portrait = matchMedia('(orientation: portrait)');
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+
+  const pad = (n) => String(n).padStart(4, '0');
+  const frameUrl = (variant, i, ext) => `${CONFIG.base}/${variant}/frame_${pad(i + 1)}.${ext}`;
+  const variantNow = () => (portrait.matches ? 'mobile' : 'desktop');
+
+  function loadImage(src) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.decoding = 'async';
+      img.onload = () => (img.decode ? img.decode().catch(() => {}) : Promise.resolve()).then(() => resolve(img));
+      img.onerror = () => reject(new Error(`missing frame ${src}`));
+      img.src = src;
+    });
+  }
+
+  // HTMLImageElement, not ImageBitmap: the browser may evict decoded pixels under memory
+  // pressure and re-decode later. 180 decoded 2560x1440 bitmaps would pin about 2.6 GB.
+  class FrameSequence {
+    constructor(variant, ext, onLoad) {
+      this.variant = variant;
+      this.ext = ext;
+      this.onLoad = onLoad;
+      this.images = new Array(N).fill(null);
+      this.loaded = 0;
+      this.inflight = 0;
+      this.dead = false;
+      this.keys = [];
+      this.rest = new Set();
+      this.target = () => 0;
+    }
+
+    start(firstImage, getTarget) {
+      this.target = getTarget;
+      this.store(0, firstImage);
+      for (let i = CONFIG.keyStep; i < N - 1; i += CONFIG.keyStep) this.keys.push(i);
+      this.keys.push(N - 1);                       // last frame is also the next section's texture
+      const keySet = new Set(this.keys);
+      for (let i = 1; i < N; i++) if (!keySet.has(i)) this.rest.add(i);
+      this.pump();
+    }
+
+    // Pass 2 is the fixed every-6th list. Pass 3 fills gaps nearest to where the user is.
+    next() {
+      if (this.keys.length) return this.keys.shift();
+      if (!this.rest.size) return -1;
+      const t = this.target();
+      let best = -1;
+      for (const i of this.rest) if (best < 0 || Math.abs(i - t) < Math.abs(best - t)) best = i;
+      this.rest.delete(best);
+      return best;
+    }
+
+    pump() {
+      while (!this.dead && this.inflight < CONFIG.parallel) {
+        const i = this.next();
+        if (i < 0) return;
+        this.inflight++;
+        loadImage(frameUrl(this.variant, i, this.ext))
+          .then((img) => { if (!this.dead) this.store(i, img); })
+          .catch((err) => console.warn(err.message))
+          .finally(() => { this.inflight--; this.pump(); });
+      }
+    }
+
+    store(i, img) {
+      this.images[i] = img;
+      this.loaded++;
+      this.onLoad(this, i);
+    }
+
+    nearest(t) {
+      for (let d = 0; d < N; d++) {
+        if (t - d >= 0 && this.images[t - d]) return t - d;
+        if (t + d < N && this.images[t + d]) return t + d;
+      }
+      return -1;
+    }
+
+    destroy() {
+      this.dead = true;
+      this.images.fill(null);
+    }
+  }
+
+  // ---------------------------------------------------------------- drawing
+  let seq = null;
+  let target = 0;
+  let drawnIndex = -1;
+  let drawnSeq = null;
+  let raf = 0;
+
+  const requestDraw = () => { if (!raf) raf = requestAnimationFrame(draw); };
+
+  function draw() {
+    raf = 0;
+    if (!seq) return;
+    const i = seq.nearest(target);
+    if (i < 0) return;
+    if (i === drawnIndex && seq === drawnSeq) return;  // never repaint the same frame twice in a row
+    const img = seq.images[i];
+    const cw = canvas.width, ch = canvas.height;
+    const s = Math.max(cw / img.naturalWidth, ch / img.naturalHeight);   // same math as CSS cover
+    const dw = img.naturalWidth * s, dh = img.naturalHeight * s;
+    ctx.drawImage(img, (cw - dw) / 2, (ch - dh) / 2, dw, dh);
+    drawnIndex = i;
+    drawnSeq = seq;
+  }
+
+  function fitCanvas() {
+    const r = canvas.getBoundingClientRect();
+    const dpr = Math.min(window.devicePixelRatio || 1, CONFIG.maxDpr);
+    const w = Math.max(1, Math.round(r.width * dpr));
+    const h = Math.max(1, Math.round(r.height * dpr));
+    if (canvas.width === w && canvas.height === h) return;
+    canvas.width = w;                 // resizing clears the bitmap, so a repaint is due
+    canvas.height = h;
+    ctx.imageSmoothingQuality = 'high';
+    drawnIndex = -1;
+    requestDraw();
+  }
+
+  function onFrameLoaded(s, i) {
+    if (s !== seq) return;
+    bar.style.width = `${(s.loaded / N) * 100}%`;
+    if (s.loaded === N) bar.style.opacity = '0';
+    if (drawnIndex < 0 || Math.abs(i - target) < Math.abs(drawnIndex - target)) requestDraw();
+    if (i === N - 1) applyLastFrame(s.images[i]);
+  }
+
+  // The final frame becomes the next section's texture and its mean color the page color.
+  function applyLastFrame(img) {
+    cloth.style.setProperty('--last-frame', `url("${img.src}")`);
+    try {
+      const c = document.createElement('canvas');
+      c.width = c.height = 16;
+      const cx = c.getContext('2d', { willReadFrequently: true });
+      cx.drawImage(img, 0, 0, 16, 16);
+      const d = cx.getImageData(0, 0, 16, 16).data;
+      let r = 0, g = 0, b = 0;
+      for (let k = 0; k < d.length; k += 4) { r += d[k]; g += d[k + 1]; b += d[k + 2]; }
+      const n = d.length / 4;
+      root.style.setProperty('--wool-rgb', `${Math.round(r / n)}, ${Math.round(g / n)}, ${Math.round(b / n)}`);
+    } catch (e) {
+      // file:// or cross origin frames taint the canvas. Serve over http to enable sampling.
+      root.style.setProperty('--wool-rgb', CONFIG.fallbackRgb);
+    }
+  }
+
+  async function pickFormat(variant) {
+    for (const ext of CONFIG.formats) {
+      try { return { ext, first: await loadImage(frameUrl(variant, 0, ext)) }; }
+      catch (e) { /* try the next format */ }
+    }
+    return null;
+  }
+
+  let bootId = 0;
+  async function boot() {
+    const id = ++bootId;
+    const variant = variantNow();
+    if (seq) seq.destroy();
+    seq = null;
+    const found = await pickFormat(variant);
+    if (id !== bootId) return;                 // orientation flipped again while loading
+    if (!found) { console.warn(`no frames found for ${variant}`); return; }
+    seq = new FrameSequence(variant, found.ext, onFrameLoaded);
+    drawnIndex = -1;
+    if (isStatic) {
+      // Reduced motion: frame 1 plus the last frame for the next section. Nothing else.
+      seq.store(0, found.first);
+      loadImage(frameUrl(variant, N - 1, found.ext)).then((img) => seq && applyLastFrame(img)).catch(() => {});
+    } else {
+      seq.start(found.first, () => target);
+    }
+    requestDraw();
+  }
+
+  // ---------------------------------------------------------------- scroll
+  const isStatic = reduced.matches || !window.gsap || !window.ScrollTrigger;
+  if (isStatic) root.classList.add('reduced');
+
+  new ResizeObserver(fitCanvas).observe(canvas);
+  fitCanvas();
+  portrait.addEventListener('change', boot);
+  boot();
+
+  if (!isStatic) {
+    gsap.registerPlugin(ScrollTrigger);
+    ScrollTrigger.config({ ignoreMobileResize: true });   // URL bar show/hide must not re-pin
+
+    // Driven by the pin's own progress. A second trigger on the pinned element would
+    // measure "top top" after the pin spacer and fire only once the pin has ended.
+    const copyFade = gsap.to('.hero-copy, .hint', { autoAlpha: 0, y: -24, ease: 'none', paused: true });
+    const fadeShare = 35 / CONFIG.scrollVh;   // fades out over the first 35vh of scroll
+
+    ScrollTrigger.create({
+      trigger: hero,
+      start: 'top top',
+      end: () => `+=${Math.round(window.innerHeight * CONFIG.scrollVh / 100)}`,
+      pin: true,
+      anticipatePin: 1,
+      invalidateOnRefresh: true,
+      onUpdate: (self) => {
+        copyFade.progress(Math.min(1, self.progress / fadeShare));
+        const f = Math.round(self.progress * (N - 1));   // linear: the render path is already linear
+        if (f !== target) { target = f; requestDraw(); }
+      },
+    });
+
+    gsap.from('.cloth-copy > *', {
+      autoAlpha: 0, y: 28, duration: 1.1, ease: 'power2.out', stagger: 0.12,
+      scrollTrigger: { trigger: '.cloth-copy h2', start: 'top 85%' },
+    });
+  }
+})();
+</script>
+</body>
+</html>
