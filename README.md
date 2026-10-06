@@ -32,6 +32,13 @@ frame becomes the texture and color of the next section.
 To review the scene interactively, open the script in Blender's Scripting workspace and run it.
 In the UI it builds the scene without rendering.
 
+## Render on Google Colab
+
+Upload `colab/angelico_render_colab.ipynb` to Colab, pick a GPU runtime, then **Run all**.
+The render script is embedded in the notebook, so there is nothing else to upload.
+Frames go to Google Drive, and running the notebook again resumes where it stopped.
+After editing the script, regenerate the notebook with `python tools/build_colab_notebook.py`.
+
 ## External dependencies (not faked)
 
 * **Studio HDRI:** set `HDRI_PATH`. Without it, glossy rays see flat neutral grey.

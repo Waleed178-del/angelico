@@ -89,6 +89,10 @@ ROOM_HEIGHT = 5.5            # tall enough that the 9:16 frame never sees over t
 
 RNG_SEED = 7                 # all procedural placement is deterministic
 
+# Farm and cloud options (Colab sessions can drop at any time).
+RESUME = False               # skip frames already on disk, so a restarted run continues
+FRAME_RANGE = None           # (start, end) to split one variant across machines
+
 
 # =============================================================================
 # SMALL HELPERS
@@ -1325,6 +1329,10 @@ def configure_render():
     im.color_depth = PNG_COLOR_DEPTH
     im.compression = 15
     r.use_file_extension = True
+    # Resume: Blender skips existing files and writes a placeholder before each frame,
+    # so parallel or restarted workers never render the same frame twice.
+    r.use_overwrite = not RESUME
+    r.use_placeholder = RESUME
 
 
 def activate_variant(name):
@@ -1341,9 +1349,13 @@ def activate_variant(name):
 
 
 def render_variants():
+    scene = bpy.context.scene
+    if FRAME_RANGE:
+        scene.frame_start, scene.frame_end = FRAME_RANGE
     for name in VARIANTS_TO_RENDER:
         activate_variant(name)
         bpy.ops.render.render(animation=True)
+    scene.frame_start, scene.frame_end = 1, FRAME_COUNT
 
 
 # =============================================================================
@@ -1353,6 +1365,7 @@ def render_variants():
 def parse_cli():
     """Arguments after '--' override the config, for headless and farm use."""
     global PREVIEW_MODE, OUTPUT_DIR, VARIANTS_TO_RENDER, RENDER_ON_RUN, USE_CLOTH_SIM
+    global RESUME, FRAME_RANGE, FINAL_SAMPLES, FINAL_NOISE_THRESHOLD, HDRI_PATH
     argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
     p = argparse.ArgumentParser(prog="luxury_suit_scroll.py")
     mode = p.add_mutually_exclusive_group()
@@ -1362,6 +1375,11 @@ def parse_cli():
     p.add_argument("--variants", nargs="+", choices=sorted(VARIANTS))
     p.add_argument("--no-render", action="store_true")
     p.add_argument("--cloth", action="store_true")
+    p.add_argument("--resume", action="store_true", help="skip frames already rendered")
+    p.add_argument("--frames", nargs=2, type=int, metavar=("START", "END"))
+    p.add_argument("--samples", type=int, help="final sample cap")
+    p.add_argument("--noise-threshold", type=float, help="final adaptive threshold")
+    p.add_argument("--hdri", help="path to a studio .hdr or .exr")
     a = p.parse_args(argv)
     if a.preview:
         PREVIEW_MODE = True
@@ -1375,6 +1393,19 @@ def parse_cli():
         RENDER_ON_RUN = False
     if a.cloth:
         USE_CLOTH_SIM = True
+    if a.resume:
+        RESUME = True
+    if a.frames:
+        start, end = a.frames
+        if not 1 <= start <= end <= FRAME_COUNT:
+            p.error(f"--frames must satisfy 1 <= START <= END <= {FRAME_COUNT}")
+        FRAME_RANGE = (start, end)
+    if a.samples:
+        FINAL_SAMPLES = a.samples
+    if a.noise_threshold:
+        FINAL_NOISE_THRESHOLD = a.noise_threshold
+    if a.hdri:
+        HDRI_PATH = a.hdri
 
 
 def main():
