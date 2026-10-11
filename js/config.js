@@ -9,7 +9,7 @@
 */
 window.ANGELICO_CONFIG = {
   sequence: {
-    enabled: false,
+    enabled: true,
     manifest: "assets/sequence/manifest.json"
   },
   currency: { code: "USD", locale: "en-US" }
