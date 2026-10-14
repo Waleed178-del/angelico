@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Angelico | By Mhd Al Sousi</title>
+  <meta name="description" content="Angelico by Mhd Al Sousi. Bespoke tailoring and luxury menswear." />
+  <meta name="theme-color" content="#121a24" />
+  <link rel="icon" type="image/png" href="assets/brand/logo-mark.png" />
+  <meta property="og:image" content="assets/brand/logo-original.jpg" />
+  <link rel="preload" as="image" href="assets/brand/logo-lockup.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="is-loading">
+
+  <!-- PRELOADER -->
+  <div class="loader" aria-hidden="true">
+    <div class="loader__mark"><img src="assets/brand/logo-mark.png" alt="" /></div>
+    <div class="loader__bar"><span></span></div>
+    <div class="loader__count">0</div>
+  </div>
+
+  <!-- CURSOR -->
+  <div class="cursor" aria-hidden="true"><span class="cursor__dot"></span><span class="cursor__ring"><em>View</em></span></div>
+  <div class="grain" aria-hidden="true"></div>
+
+  <!-- NAV -->
+  <header class="nav">
+    <a href="#top" class="nav__brand" aria-label="Angelico home">
+      <img src="assets/brand/logo-mark.png" alt="" class="nav__mark" />
+      <img src="assets/brand/logo-wordmark.png" alt="Angelico" class="nav__word" />
+    </a>
+    <nav class="nav__links" aria-label="Primary">
+      <a href="#collections" data-magnetic>Collections</a>
+      <a href="#atelier" data-magnetic>Atelier</a>
+      <a href="#shop" data-magnetic>Shop</a>
+      <a href="#appointment" data-magnetic>Appointment</a>
+    </nav>
+    <div class="nav__actions">
+      <button class="nav__bag" data-magnetic aria-label="Shopping bag">Bag <span class="nav__count">0</span></button>
+      <button class="nav__burger" aria-label="Open menu" aria-expanded="false"><span></span><span></span></button>
+    </div>
+  </header>
+
+  <div class="menu" aria-hidden="true">
+    <ol>
+      <li><a href="#collections"><small>01</small>Collections</a></li>
+      <li><a href="#atelier"><small>02</small>Atelier</a></li>
+      <li><a href="#shop"><small>03</small>Shop</a></li>
+      <li><a href="#appointment"><small>04</small>Appointment</a></li>
+    </ol>
+  </div>
+
+  <main id="top">
+
+    <!-- HERO: pinned scroll sequence, a man being dressed in his suit -->
+    <section class="hero" id="hero">
+      <div class="hero__pin">
+        <div class="hero__bg">
+          <div class="hero__glow"></div>
+          <div class="hero__giant" aria-hidden="true">ANGELICO</div>
+        </div>
+
+        <!-- Video frame sequence (Kling output). Activated by js/config.js -->
+        <canvas class="hero__canvas" aria-hidden="true"></canvas>
+
+        <!-- Fallback / default: animated illustrated figure -->
+        <svg class="figure" viewBox="0 0 600 900" role="img" aria-label="A man being dressed in a tailored suit">
+          <defs>
+            <linearGradient id="gSkin" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#2a3646"/><stop offset="1" stop-color="#1b2431"/>
+            </linearGradient>
+            <linearGradient id="gShirt" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#f6f2ea"/><stop offset="1" stop-color="#d9d2c4"/>
+            </linearGradient>
+            <linearGradient id="gJacketL" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0" stop-color="#162030"/><stop offset="1" stop-color="#2b3a4e"/>
+            </linearGradient>
+            <linearGradient id="gJacketR" x1="1" y1="0" x2="0" y2="0">
+              <stop offset="0" stop-color="#121a27"/><stop offset="1" stop-color="#2b3a4e"/>
+            </linearGradient>
+            <linearGradient id="gTie" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#d9bd7f"/><stop offset="1" stop-color="#9c7b3f"/>
+            </linearGradient>
+            <linearGradient id="gGold" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#f0dca8"/><stop offset="1" stop-color="#a8843f"/>
+            </linearGradient>
+            <clipPath id="clipShirt"><rect class="clip-shirt" x="0" y="150" width="600" height="0"/></clipPath>
+            <clipPath id="clipTie"><rect class="clip-tie" x="250" y="215" width="100" height="0"/></clipPath>
+            <pattern id="pinstripe" width="9" height="9" patternUnits="userSpaceOnUse">
+              <line x1="4.5" y1="0" x2="4.5" y2="9" stroke="#ffffff" stroke-opacity=".045" stroke-width="1"/>
+            </pattern>
+          </defs>
+
+          <!-- Body (mannequin silhouette) -->
+          <g class="f-body">
+            <ellipse cx="300" cy="96" rx="50" ry="64" fill="url(#gSkin)" />
+            <path d="M276 150 L276 206 Q300 218 324 206 L324 150 Z" fill="url(#gSkin)"/>
+            <path d="M300 206 C250 206 180 222 150 246 C128 264 124 300 122 340 L112 560 Q110 640 118 720 L150 722 Q160 640 168 560 L186 380 L192 600 Q190 700 196 800 L404 800 Q410 700 408 600 L414 380 L432 560 Q440 640 450 722 L482 720 Q490 640 488 560 L478 340 C476 300 472 264 450 246 C420 222 350 206 300 206 Z" fill="url(#gSkin)"/>
+            <path class="f-outline" d="M300 206 C250 206 180 222 150 246 C128 264 124 300 122 340 L112 560 Q110 640 118 720 M482 720 Q490 640 488 560 L478 340 C476 300 472 264 450 246 C420 222 350 206 300 206" fill="none" stroke="#c8a96a" stroke-opacity=".35" stroke-width="1.2"/>
+          </g>
+
+          <!-- Shirt -->
+          <g class="f-shirt" clip-path="url(#clipShirt)">
+            <path d="M300 214 C254 214 190 228 160 250 C140 266 136 300 134 340 L124 560 Q122 640 128 712 L160 714 Q168 640 176 560 L194 386 L198 600 Q196 700 202 800 L398 800 Q404 700 402 600 L406 386 L424 560 Q432 640 440 714 L472 712 Q478 640 476 560 L466 340 C464 300 460 266 440 250 C410 228 346 214 300 214 Z" fill="url(#gShirt)"/>
+            <path d="M300 230 L300 800" stroke="#c9c1b1" stroke-width="1.2"/>
+            <g fill="#bfb6a5"><circle cx="300" cy="300" r="3"/><circle cx="300" cy="380" r="3"/><circle cx="300" cy="460" r="3"/><circle cx="300" cy="540" r="3"/><circle cx="300" cy="620" r="3"/></g>
+            <!-- collar -->
+            <path d="M270 196 L300 236 L262 262 L254 214 Z" fill="#fbf8f2" stroke="#cfc7b7" stroke-width="1"/>
+            <path d="M330 196 L300 236 L338 262 L346 214 Z" fill="#fbf8f2" stroke="#cfc7b7" stroke-width="1"/>
+            <!-- cuffs -->
+            <rect x="122" y="690" width="40" height="30" rx="3" fill="#fbf8f2"/>
+            <rect x="438" y="690" width="40" height="30" rx="3" fill="#fbf8f2"/>
+          </g>
+
+          <!-- Tie -->
+          <g class="f-tie" clip-path="url(#clipTie)">
+            <path d="M288 226 L312 226 L316 248 L284 248 Z" fill="url(#gTie)"/>
+            <path d="M286 248 L314 248 L330 560 L300 596 L270 560 Z" fill="url(#gTie)"/>
+            <path d="M300 250 L300 590" stroke="#fff" stroke-opacity=".18" stroke-width="1"/>
+          </g>
+
+          <!-- Jacket: two panels that slide on, lapels echo the Angelico mark -->
+          <g class="f-jacket">
+            <g class="f-jacket-l">
+              <path d="M298 212 C252 212 186 226 156 248 C134 264 130 300 128 340 L116 560 Q114 640 120 700 L166 702 Q172 640 180 560 L192 400 L194 620 Q192 700 194 808 L300 808 L300 596 L232 330 Z" fill="url(#gJacketL)"/>
+              <path d="M298 212 C252 212 186 226 156 248 C134 264 130 300 128 340 L116 560 Q114 640 120 700 L166 702 Q172 640 180 560 L192 400 L194 620 Q192 700 194 808 L300 808 L300 596 L232 330 Z" fill="url(#pinstripe)"/>
+              <!-- left lapel -->
+              <path class="lapel" d="M262 206 L232 330 L300 596 L250 330 L246 300 L214 258 Z" fill="#1d2939" stroke="#c8a96a" stroke-opacity=".55" stroke-width="1.2"/>
+              <!-- pocket square (wearer's left = viewer's right lives on right panel); flap pocket -->
+              <path d="M212 640 L272 640" stroke="#0c121b" stroke-width="3" stroke-linecap="round"/>
+            </g>
+            <g class="f-jacket-r">
+              <path d="M302 212 C348 212 414 226 444 248 C466 264 470 300 472 340 L484 560 Q486 640 480 700 L434 702 Q428 640 420 560 L408 400 L406 620 Q408 700 406 808 L300 808 L300 596 L368 330 Z" fill="url(#gJacketR)"/>
+              <path d="M302 212 C348 212 414 226 444 248 C466 264 470 300 472 340 L484 560 Q486 640 480 700 L434 702 Q428 640 420 560 L408 400 L406 620 Q408 700 406 808 L300 808 L300 596 L368 330 Z" fill="url(#pinstripe)"/>
+              <path class="lapel" d="M338 206 L368 330 L300 596 L350 330 L354 300 L386 258 Z" fill="#1d2939" stroke="#c8a96a" stroke-opacity=".55" stroke-width="1.2"/>
+              <path d="M342 410 L392 410" stroke="#0c121b" stroke-width="3" stroke-linecap="round"/>
+              <path d="M328 640 L388 640" stroke="#0c121b" stroke-width="3" stroke-linecap="round"/>
+            </g>
+          </g>
+
+          <!-- Finishing: buttons (the two dots of the mark), pocket square, cufflinks -->
+          <g class="f-finish">
+            <circle class="btn" cx="300" cy="620" r="6" fill="url(#gGold)"/>
+            <circle class="btn" cx="300" cy="660" r="6" fill="url(#gGold)"/>
+            <path class="square" d="M346 410 L362 386 L372 404 L382 384 L390 410 Z" fill="url(#gGold)"/>
+            <circle class="cuff" cx="142" cy="706" r="5" fill="url(#gGold)"/>
+            <circle class="cuff" cx="458" cy="706" r="5" fill="url(#gGold)"/>
+            <path class="f-trace" d="M300 212 C252 212 186 226 156 248 C134 264 130 300 128 340 L116 560 Q114 640 120 700 M300 212 C348 212 414 226 444 248 C466 264 470 300 472 340 L484 560 Q486 640 480 700 M262 206 L232 330 L300 596 L368 330 L338 206" fill="none" stroke="url(#gGold)" stroke-width="1.6"/>
+          </g>
+        </svg>
+
+        <!-- Stage captions -->
+        <div class="hero__intro">
+          <p class="eyebrow">Maison de Tailleur</p>
+          <h1 class="hero__title"><span>Dressed</span><span><em>in</em> intent.</span></h1>
+          <p class="hero__scroll">Scroll to dress <i></i></p>
+        </div>
+
+        <ol class="stages">
+          <li class="stage" data-stage="1"><small>I</small><h2>The Shirt</h2><p>Two fold Egyptian cotton, hand set collar, mother of pearl buttons.</p></li>
+          <li class="stage" data-stage="2"><small>II</small><h2>The Tie</h2><p>Seven fold silk, cut on the bias so it falls with quiet weight.</p></li>
+          <li class="stage" data-stage="3"><small>III</small><h2>The Jacket</h2><p>Full floating canvas. Lapels drawn from the Angelico mark.</p></li>
+          <li class="stage" data-stage="4"><small>IV</small><h2>The Finish</h2><p>Horn buttons, a folded silk square. Nothing loud. Nothing missing.</p></li>
+        </ol>
+
+        <div class="hero__progress" aria-hidden="true"><span></span></div>
+
+        <div class="hero__final">
+          <img src="assets/brand/logo-lockup.png" alt="Angelico by Mhd Al Sousi" />
+        </div>
+      </div>
+    </section>
+
+    <!-- MANIFESTO -->
+    <section class="manifesto">
+      <p class="eyebrow">The House</p>
+      <p class="manifesto__text" data-split>A suit is not worn. It is inhabited. At Angelico every garment begins with the man who will carry it, his posture, his stride, the way he enters a room. We cut for that moment.</p>
+      <div class="manifesto__sig">Mhd Al Sousi <span>Founder &amp; Master Tailor</span></div>
+    </section>
+
+    <!-- MARQUEE -->
+    <div class="marquee" aria-hidden="true">
+      <div class="marquee__track">
+        <span>Bespoke</span><i>&#9670;</i><span>Made to Measure</span><i>&#9670;</i><span>Ceremonial</span><i>&#9670;</i><span>Evening Wear</span><i>&#9670;</i>
+        <span>Bespoke</span><i>&#9670;</i><span>Made to Measure</span><i>&#9670;</i><span>Ceremonial</span><i>&#9670;</i><span>Evening Wear</span><i>&#9670;</i>
+      </div>
+    </div>
+
+    <!-- COLLECTIONS: horizontal pinned scroll -->
+    <section class="collections" id="collections">
+      <div class="collections__pin">
+        <header class="collections__head">
+          <p class="eyebrow">Collections</p>
+          <h2 class="display">The Wardrobe</h2>
+        </header>
+        <div class="collections__track">
+          <article class="card" data-cursor>
+            <div class="card__art"><img src="assets/products/suit.webp" alt="Navy three piece bespoke suit with gold tie" width="900" height="1125" loading="lazy" decoding="async" /></div>
+            <div class="card__meta"><small>01</small><h3>Bespoke Suits</h3><p>Cut from a pattern drafted for you alone.</p></div>
+          </article>
+          <article class="card" data-cursor>
+            <div class="card__art"><img src="assets/products/tuxedo.webp" alt="Midnight navy tuxedo with peak satin lapels and bow tie" width="900" height="1125" loading="lazy" decoding="async" /></div>
+            <div class="card__meta"><small>02</small><h3>Evening &amp; Tuxedo</h3><p>Silk peak lapels for the hours after dark.</p></div>
+          </article>
+          <article class="card" data-cursor>
+            <div class="card__art"><img src="assets/products/shirting.webp" alt="Crisp white dress shirt with gold silk tie" width="900" height="1125" loading="lazy" decoding="async" /></div>
+            <div class="card__meta"><small>03</small><h3>Shirting</h3><p>Sea island cotton, hand finished buttonholes.</p></div>
+          </article>
+          <article class="card" data-cursor>
+            <div class="card__art"><img src="assets/products/overcoat.webp" alt="Navy double breasted wool overcoat with silk scarf" width="900" height="1125" loading="lazy" decoding="async" /></div>
+            <div class="card__meta"><small>04</small><h3>Outerwear</h3><p>Cashmere overcoats built to outlast seasons.</p></div>
+          </article>
+          <article class="card" data-cursor>
+            <div class="card__art"><img src="assets/products/accessories.webp" alt="Gold cufflink, silk tie and paisley pocket square" width="900" height="1125" loading="lazy" decoding="async" /></div>
+            <div class="card__meta"><small>05</small><h3>Accessories</h3><p>Cufflinks, silk ties, folded squares.</p></div>
+          </article>
+          <article class="card" data-cursor>
+            <div class="card__art"><img src="assets/products/footwear.webp" alt="Brown brogue oxfords with navy trousers and patterned socks" width="900" height="1125" loading="lazy" decoding="async" /></div>
+            <div class="card__meta"><small>06</small><h3>Footwear</h3><p>Goodyear welted oxfords in burnished calf.</p></div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ATELIER: process with stacking cards -->
+    <section class="atelier" id="atelier">
+      <header class="atelier__head">
+        <p class="eyebrow">The Atelier</p>
+        <h2 class="display" data-split>From first measure to final press.</h2>
+      </header>
+      <div class="stats">
+        <div class="stat"><b data-count="80">0</b><span>Hours of handwork per suit</span></div>
+        <div class="stat"><b data-count="27">0</b><span>Measurements taken</span></div>
+        <div class="stat"><b data-count="3">0</b><span>Fittings, minimum</span></div>
+        <div class="stat"><b data-count="1">0</b><span>Pattern, yours alone</span></div>
+      </div>
+      <div class="steps">
+        <article class="step"><span class="step__n">01</span><div><h3>Consultation</h3><p>We discuss occasion, lifestyle and the cloth that suits both. Over three hundred bunches from the finest mills.</p></div></article>
+        <article class="step"><span class="step__n">02</span><div><h3>Measurement</h3><p>Every slope of the shoulder, every turn of the stance recorded and drafted into a personal paper pattern.</p></div></article>
+        <article class="step"><span class="step__n">03</span><div><h3>Fittings</h3><p>A basted fitting, a forward fitting, a finished fitting. The garment learns your body in stages.</p></div></article>
+        <article class="step"><span class="step__n">04</span><div><h3>Delivery</h3><p>Pressed by hand, presented in our garment carrier, and kept on file for every commission after.</p></div></article>
+      </div>
+    </section>
+
+    <!-- SHOP -->
+    <section class="shop" id="shop">
+      <header class="shop__head">
+        <div><p class="eyebrow">Ready to Wear</p><h2 class="display">The Edit</h2></div>
+        <div class="filters" role="tablist">
+          <button class="is-active" data-filter="all">All</button>
+          <button data-filter="suits">Suits</button>
+          <button data-filter="outerwear">Outerwear</button>
+          <button data-filter="foot">Footwear</button>
+          <button data-filter="acc">Accessories</button>
+        </div>
+      </header>
+      <div class="grid" id="grid"></div>
+    </section>
+
+    <!-- QUOTE / PARALLAX -->
+    <section class="quote">
+      <div class="quote__mark"><img src="assets/brand/logo-mark.png" alt="" /></div>
+      <blockquote data-split>“Elegance is the only beauty that never fades.”</blockquote>
+    </section>
+
+    <!-- APPOINTMENT -->
+    <section class="appointment" id="appointment">
+      <div class="appointment__inner">
+        <p class="eyebrow">Private Appointment</p>
+        <h2 class="display">Begin your commission.</h2>
+        <form class="form" novalidate>
+          <label><span>Name</span><input name="name" required autocomplete="name" /></label>
+          <label><span>Email</span><input name="email" type="email" required autocomplete="email" /></label>
+          <label><span>Interest</span>
+            <select name="interest"><option>Bespoke Suit</option><option>Evening Wear</option><option>Wedding</option><option>Shirting</option></select>
+          </label>
+          <label><span>Preferred date</span><input name="date" type="date" /></label>
+          <button type="submit" class="btn-gold" data-magnetic><span>Request appointment</span></button>
+          <p class="form__msg" role="status" aria-live="polite"></p>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <img src="assets/brand/logo-lockup.png" alt="Angelico by Mhd Al Sousi" class="footer__logo" />
+    <div class="footer__cols">
+      <div><h4>Visit</h4><p>By appointment only</p></div>
+      <div><h4>Follow</h4><p><a href="#">Instagram</a><br /><a href="#">Pinterest</a></p></div>
+      <div><h4>House</h4><p><a href="#atelier">Atelier</a><br /><a href="#shop">Shop</a></p></div>
+    </div>
+    <p class="footer__legal">© <span id="year"></span> Angelico by Mhd Al Sousi. All rights reserved.</p>
+  </footer>
+
+  <div class="toast" role="status" aria-live="polite"></div>
+
+  <script src="js/vendor/gsap.min.js"></script>
+  <script src="js/vendor/ScrollTrigger.min.js"></script>
+  <script src="js/vendor/lenis.min.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
