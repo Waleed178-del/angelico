@@ -14,31 +14,19 @@
     style: "currency", currency: CFG.currency?.code || "USD", maximumFractionDigits: 0
   });
 
-  const art = {
-    suit: (c, l) => `<svg viewBox="0 0 200 240"><path d="M100 22 L66 30 Q38 42 34 78 L24 226 L56 226 L62 110 L60 236 L140 236 L138 110 L144 226 L176 226 L166 78 Q162 42 134 30 Z" fill="${c}"/><path d="M84 26 L100 70 L116 26 Z" fill="#f3efe7"/><path d="M96 34 L104 34 L108 130 L100 140 L92 130 Z" fill="${l}"/><path d="M84 26 L72 76 L100 160 L82 76 Z M116 26 L128 76 L100 160 L118 76 Z" fill="rgba(0,0,0,.22)" stroke="${l}" stroke-opacity=".5"/><circle cx="100" cy="172" r="3" fill="${l}"/><circle cx="100" cy="190" r="3" fill="${l}"/><path d="M118 96 L126 86 L130 94 L136 86 L140 96 Z" fill="${l}"/></svg>`,
-    tux: (c, l) => `<svg viewBox="0 0 200 240"><path d="M100 22 L66 30 Q38 42 34 78 L24 226 L56 226 L62 110 L60 236 L140 236 L138 110 L144 226 L176 226 L166 78 Q162 42 134 30 Z" fill="${c}"/><path d="M84 26 L100 90 L116 26 Z" fill="#f3efe7"/><path d="M88 36 L100 42 L112 36 L112 50 L100 44 L88 50 Z" fill="#0b1118"/><path d="M84 26 Q66 100 100 160 Q76 100 90 30 Z M116 26 Q134 100 100 160 Q124 100 110 30 Z" fill="#0b1118" stroke="${l}" stroke-opacity=".6"/><circle cx="100" cy="172" r="3" fill="${l}"/></svg>`,
-    shirt: (c, l) => `<svg viewBox="0 0 200 240"><path d="M100 40 L72 44 Q46 54 42 84 L36 200 L60 200 L66 116 L68 230 L132 230 L134 116 L140 200 L164 200 L158 84 Q154 54 128 44 Z" fill="${c}"/><path d="M84 30 L100 54 L78 64 L74 40 Z M116 30 L100 54 L122 64 L126 40 Z" fill="${c}" stroke="rgba(0,0,0,.18)"/><path d="M100 54 L100 230" stroke="rgba(0,0,0,.15)"/><g fill="${l}"><circle cx="100" cy="90" r="2.4"/><circle cx="100" cy="124" r="2.4"/><circle cx="100" cy="158" r="2.4"/><circle cx="100" cy="192" r="2.4"/></g></svg>`,
-    tie: (c, l) => `<svg viewBox="0 0 200 240"><path d="M88 20 L112 20 L116 44 L84 44 Z" fill="${c}"/><path d="M85 44 L115 44 L134 196 L100 230 L66 196 Z" fill="${c}"/><path d="M100 46 L100 226" stroke="${l}" stroke-opacity=".35"/><path d="M78 120 L122 100 M74 160 L128 136 M72 196 L130 172" stroke="${l}" stroke-opacity=".25"/></svg>`,
-    cuff: (c, l) => `<svg viewBox="0 0 200 240"><circle cx="66" cy="120" r="34" fill="${c}"/><circle cx="66" cy="120" r="20" fill="none" stroke="${l}" stroke-width="2"/><circle cx="134" cy="120" r="34" fill="${c}"/><circle cx="134" cy="120" r="20" fill="none" stroke="${l}" stroke-width="2"/><path d="M58 112 L66 104 L74 112 L66 132 Z M126 112 L134 104 L142 112 L134 132 Z" fill="${l}"/></svg>`,
-    coat: (c, l) => `<svg viewBox="0 0 200 240"><path d="M100 14 L64 22 Q36 34 32 72 L22 232 L54 232 L60 108 L58 240 L142 240 L140 108 L146 232 L178 232 L168 72 Q164 34 136 22 Z" fill="${c}"/><path d="M82 18 L68 66 L100 116 L132 66 L118 18 L100 60 Z" fill="rgba(0,0,0,.25)" stroke="${l}" stroke-opacity=".4"/><g fill="${l}"><circle cx="86" cy="136" r="3"/><circle cx="114" cy="136" r="3"/><circle cx="86" cy="176" r="3"/><circle cx="114" cy="176" r="3"/></g></svg>`
-  };
-
   const products = [
-    { name: "The Sousi Two Piece", note: "Super 150s wool, midnight", price: 3200, cat: "suits", art: art.suit("#2c405a", "#c8a96a"), tag: "Signature" },
-    { name: "Peak Lapel Tuxedo", note: "Barathea with silk facing", price: 3900, cat: "suits", art: art.tux("#0e141d", "#c8a96a"), tag: "Evening" },
-    { name: "Cashmere Overcoat", note: "Double breasted, camel", price: 4400, cat: "suits", art: art.coat("#8a6b45", "#e9d6a6"), tag: "New" },
-    { name: "Ivory Poplin Shirt", note: "Sea island cotton", price: 420, cat: "shirts", art: art.shirt("#f3efe7", "#bfb6a5") },
-    { name: "Pale Blue Oxford", note: "Hand set collar", price: 390, cat: "shirts", art: art.shirt("#c9d6e3", "#8ea2b6") },
-    { name: "Seven Fold Silk Tie", note: "Gold jacquard", price: 260, cat: "acc", art: art.tie("#b18e4f", "#f3e3b8"), tag: "Atelier" },
-    { name: "Navy Grenadine Tie", note: "Woven in Como", price: 240, cat: "acc", art: art.tie("#24324a", "#c8a96a") },
-    { name: "Onyx Cufflinks", note: "18k gold vermeil", price: 680, cat: "acc", art: art.cuff("#0e141d", "#c8a96a") },
-    { name: "Charcoal Flannel Suit", note: "Three piece, VBC", price: 3600, cat: "suits", art: art.suit("#3a3f47", "#d9c18a") }
+    { name: "The Sousi Three Piece", note: "Super 150s wool, midnight navy", price: 3200, cat: "suits", img: "suit", alt: "Navy three piece suit with gold tie", tag: "Signature" },
+    { name: "Peak Lapel Tuxedo", note: "Satin facings, waistcoat included", price: 3900, cat: "suits", img: "tuxedo", alt: "Navy tuxedo with black satin peak lapels", tag: "Evening" },
+    { name: "Double Breasted Overcoat", note: "Textured wool, navy", price: 4400, cat: "outerwear", img: "overcoat", alt: "Navy double breasted overcoat", tag: "New" },
+    { name: "Cap Toe Brogue Oxford", note: "Burnished brown calf, Goodyear welted", price: 980, cat: "foot", img: "footwear", alt: "Brown brogue oxford shoes" },
+    { name: "Seven Fold Silk Tie", note: "Gold grenadine weave", price: 260, cat: "acc", img: "tie", alt: "Gold silk grenadine tie", tag: "Atelier" },
+    { name: "Gold and Lapis Cufflinks", note: "18k gold vermeil", price: 680, cat: "acc", img: "cufflinks", alt: "Gold cufflink with navy stone on a white cuff" }
   ];
 
   const grid = $("#grid");
   grid.innerHTML = products.map((p, i) => `
     <article class="product" data-cat="${p.cat}" data-cursor>
-      <div class="product__media">${p.tag ? `<span class="product__tag">${p.tag}</span>` : ""}${p.art}
+      <div class="product__media">${p.tag ? `<span class="product__tag">${p.tag}</span>` : ""}<img src="assets/products/${p.img}.webp" alt="${p.alt}" width="900" height="1125" loading="lazy" decoding="async" />
         <button class="product__add" data-i="${i}">Add to bag</button></div>
       <div class="product__info"><div><h3>${p.name}</h3><p>${p.note}</p></div><span class="product__price">${fmt.format(p.price)}</span></div>
     </article>`).join("");
@@ -324,7 +312,7 @@
     once: true
   });
   $$(".product__media").forEach((m) => {
-    const svg = $("svg", m);
+    const svg = $("img", m);
     m.addEventListener("pointermove", (e) => {
       const r = m.getBoundingClientRect();
       gsap.to(svg, { rotateY: ((e.clientX - r.left) / r.width - 0.5) * 14, rotateX: -((e.clientY - r.top) / r.height - 0.5) * 14, duration: 0.6, transformPerspective: 800 });

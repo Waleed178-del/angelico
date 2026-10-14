@@ -19,6 +19,7 @@ css/style.css         design tokens (from the logo navy #2A3A4A) and layout
 js/config.js          hero sequence switch, store currency
 js/main.js            GSAP + ScrollTrigger + Lenis animations, shop logic
 assets/brand/         logo extracted from the original artwork (transparent PNG)
+assets/products/      product photos (WebP, 900x1125)
 assets/sequence/      Kling video frames (generated, see KLING.md)
 scripts/extract-frames.sh   video to scroll frames
 ```
