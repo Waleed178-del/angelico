@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="theme-color" content="#121a24" />
+  <title>Angelico Admin</title>
+  <link rel="icon" type="image/png" href="../assets/brand/logo-mark.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="admin.css" />
+</head>
+<body>
+  <div id="login" class="login" hidden></div>
+
+  <div id="app" class="app" hidden>
+    <aside class="side">
+      <a class="side__brand" href="#/dashboard"><img src="../assets/brand/logo-mark.png" alt="" /><span>Angelico<small>Admin</small></span></a>
+      <nav id="nav" class="side__nav" aria-label="Admin sections"></nav>
+      <div class="side__foot">
+        <a id="liveLink" href="../" target="_blank" rel="noopener">View live site</a>
+        <button data-act="disconnect" class="linkbtn">Disconnect</button>
+      </div>
+    </aside>
+
+    <div class="main">
+      <header class="bar">
+        <div class="bar__title"><h1 id="viewTitle">Dashboard</h1><span id="statusBadge" class="badge"></span></div>
+        <div class="bar__actions">
+          <button class="btn" data-act="preview">Preview draft</button>
+          <button class="btn" data-act="discard" id="discardBtn">Discard changes</button>
+          <button class="btn btn--gold" data-act="publish" id="publishBtn">Publish</button>
+        </div>
+      </header>
+      <main id="view" class="view"></main>
+    </div>
+  </div>
+
+  <div id="modal" class="modal" hidden></div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="github.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>

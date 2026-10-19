@@ -18,7 +18,7 @@
 
   <!-- PRELOADER -->
   <div class="loader" aria-hidden="true">
-    <div class="loader__mark"><img src="assets/brand/logo-mark.png" alt="" /></div>
+    <div class="loader__mark"><img src="assets/brand/logo-mark.png" alt="" data-logo="mark" /></div>
     <div class="loader__bar"><span></span></div>
     <div class="loader__count">0</div>
   </div>
@@ -30,15 +30,10 @@
   <!-- NAV -->
   <header class="nav">
     <a href="#top" class="nav__brand" aria-label="Angelico home">
-      <img src="assets/brand/logo-mark.png" alt="" class="nav__mark" />
-      <img src="assets/brand/logo-wordmark.png" alt="Angelico" class="nav__word" />
+      <img src="assets/brand/logo-mark.png" alt="" class="nav__mark" data-logo="mark" />
+      <img src="assets/brand/logo-wordmark.png" alt="Angelico" class="nav__word" data-logo="wordmark" />
     </a>
-    <nav class="nav__links" aria-label="Primary">
-      <a href="#collections" data-magnetic>Collections</a>
-      <a href="#atelier" data-magnetic>Atelier</a>
-      <a href="#shop" data-magnetic>Shop</a>
-      <a href="#appointment" data-magnetic>Appointment</a>
-    </nav>
+    <nav class="nav__links" aria-label="Primary"></nav>
     <div class="nav__actions">
       <button class="nav__bag" data-magnetic aria-label="Shopping bag">Bag <span class="nav__count">0</span></button>
       <button class="nav__burger" aria-label="Open menu" aria-expanded="false"><span></span><span></span></button>
@@ -46,12 +41,7 @@
   </header>
 
   <div class="menu" aria-hidden="true">
-    <ol>
-      <li><a href="#collections"><small>01</small>Collections</a></li>
-      <li><a href="#atelier"><small>02</small>Atelier</a></li>
-      <li><a href="#shop"><small>03</small>Shop</a></li>
-      <li><a href="#appointment"><small>04</small>Appointment</a></li>
-    </ol>
+    <ol></ol>
   </div>
 
   <main id="top">
@@ -61,7 +51,7 @@
       <div class="hero__pin">
         <div class="hero__bg">
           <div class="hero__glow"></div>
-          <div class="hero__giant" aria-hidden="true">ANGELICO</div>
+          <div class="hero__giant" aria-hidden="true"></div>
         </div>
 
         <!-- Video frame sequence (Kling output). Activated by js/config.js -->
@@ -155,131 +145,82 @@
 
         <!-- Stage captions -->
         <div class="hero__intro">
-          <p class="eyebrow">Maison de Tailleur</p>
-          <h1 class="hero__title"><span>Dressed</span><span><em>in</em> intent.</span></h1>
-          <p class="hero__scroll">Scroll to dress <i></i></p>
+          <p class="eyebrow"></p>
+          <h1 class="hero__title"></h1>
+          <p class="hero__scroll"></p>
         </div>
 
-        <ol class="stages">
-          <li class="stage" data-stage="1"><small>I</small><h2>The Shirt</h2><p>Two fold Egyptian cotton, hand set collar, mother of pearl buttons.</p></li>
-          <li class="stage" data-stage="2"><small>II</small><h2>The Tie</h2><p>Seven fold silk, cut on the bias so it falls with quiet weight.</p></li>
-          <li class="stage" data-stage="3"><small>III</small><h2>The Jacket</h2><p>Full floating canvas. Lapels drawn from the Angelico mark.</p></li>
-          <li class="stage" data-stage="4"><small>IV</small><h2>The Finish</h2><p>Horn buttons, a folded silk square. Nothing loud. Nothing missing.</p></li>
-        </ol>
+        <ol class="stages"></ol>
 
         <div class="hero__progress" aria-hidden="true"><span></span></div>
 
         <div class="hero__final">
-          <img src="assets/brand/logo-lockup.png" alt="Angelico by Mhd Al Sousi" />
+          <img src="assets/brand/logo-lockup.png" alt="Angelico by Mhd Al Sousi" data-logo="lockup" />
         </div>
       </div>
     </section>
 
     <!-- MANIFESTO -->
-    <section class="manifesto">
-      <p class="eyebrow">The House</p>
-      <p class="manifesto__text" data-split>A suit is not worn. It is inhabited. At Angelico every garment begins with the man who will carry it, his posture, his stride, the way he enters a room. We cut for that moment.</p>
-      <div class="manifesto__sig">Mhd Al Sousi <span>Founder &amp; Master Tailor</span></div>
+    <section class="manifesto" data-section="manifesto">
+      <p class="eyebrow"></p>
+      <p class="manifesto__text" data-split></p>
+      <div class="manifesto__sig"></div>
     </section>
 
     <!-- MARQUEE -->
-    <div class="marquee" aria-hidden="true">
-      <div class="marquee__track">
-        <span>Bespoke</span><i>&#9670;</i><span>Made to Measure</span><i>&#9670;</i><span>Ceremonial</span><i>&#9670;</i><span>Evening Wear</span><i>&#9670;</i>
-        <span>Bespoke</span><i>&#9670;</i><span>Made to Measure</span><i>&#9670;</i><span>Ceremonial</span><i>&#9670;</i><span>Evening Wear</span><i>&#9670;</i>
-      </div>
+    <div class="marquee" aria-hidden="true" data-section="marquee">
+      <div class="marquee__track"></div>
     </div>
 
     <!-- COLLECTIONS: horizontal pinned scroll -->
-    <section class="collections" id="collections">
+    <section class="collections" id="collections" data-section="collections">
       <div class="collections__pin">
         <header class="collections__head">
-          <p class="eyebrow">Collections</p>
-          <h2 class="display">The Wardrobe</h2>
+          <p class="eyebrow"></p>
+          <h2 class="display"></h2>
         </header>
-        <div class="collections__track">
-          <article class="card" data-cursor>
-            <div class="card__art"><img src="assets/products/suit.webp" alt="Navy three piece bespoke suit with gold tie" width="900" height="1125" loading="lazy" decoding="async" /></div>
-            <div class="card__meta"><small>01</small><h3>Bespoke Suits</h3><p>Cut from a pattern drafted for you alone.</p></div>
-          </article>
-          <article class="card" data-cursor>
-            <div class="card__art"><img src="assets/products/tuxedo.webp" alt="Midnight navy tuxedo with peak satin lapels and bow tie" width="900" height="1125" loading="lazy" decoding="async" /></div>
-            <div class="card__meta"><small>02</small><h3>Evening &amp; Tuxedo</h3><p>Silk peak lapels for the hours after dark.</p></div>
-          </article>
-          <article class="card" data-cursor>
-            <div class="card__art"><img src="assets/products/shirting.webp" alt="Crisp white dress shirt with gold silk tie" width="900" height="1125" loading="lazy" decoding="async" /></div>
-            <div class="card__meta"><small>03</small><h3>Shirting</h3><p>Sea island cotton, hand finished buttonholes.</p></div>
-          </article>
-          <article class="card" data-cursor>
-            <div class="card__art"><img src="assets/products/overcoat.webp" alt="Navy double breasted wool overcoat with silk scarf" width="900" height="1125" loading="lazy" decoding="async" /></div>
-            <div class="card__meta"><small>04</small><h3>Outerwear</h3><p>Cashmere overcoats built to outlast seasons.</p></div>
-          </article>
-          <article class="card" data-cursor>
-            <div class="card__art"><img src="assets/products/accessories.webp" alt="Gold cufflink, silk tie and paisley pocket square" width="900" height="1125" loading="lazy" decoding="async" /></div>
-            <div class="card__meta"><small>05</small><h3>Accessories</h3><p>Cufflinks, silk ties, folded squares.</p></div>
-          </article>
-          <article class="card" data-cursor>
-            <div class="card__art"><img src="assets/products/footwear.webp" alt="Brown brogue oxfords with navy trousers and patterned socks" width="900" height="1125" loading="lazy" decoding="async" /></div>
-            <div class="card__meta"><small>06</small><h3>Footwear</h3><p>Goodyear welted oxfords in burnished calf.</p></div>
-          </article>
-        </div>
+        <div class="collections__track"></div>
       </div>
     </section>
 
     <!-- ATELIER: process with stacking cards -->
-    <section class="atelier" id="atelier">
+    <section class="atelier" id="atelier" data-section="atelier">
       <header class="atelier__head">
-        <p class="eyebrow">The Atelier</p>
-        <h2 class="display" data-split>From first measure to final press.</h2>
+        <p class="eyebrow"></p>
+        <h2 class="display" data-split></h2>
       </header>
-      <div class="stats">
-        <div class="stat"><b data-count="80">0</b><span>Hours of handwork per suit</span></div>
-        <div class="stat"><b data-count="27">0</b><span>Measurements taken</span></div>
-        <div class="stat"><b data-count="3">0</b><span>Fittings, minimum</span></div>
-        <div class="stat"><b data-count="1">0</b><span>Pattern, yours alone</span></div>
-      </div>
-      <div class="steps">
-        <article class="step"><span class="step__n">01</span><div><h3>Consultation</h3><p>We discuss occasion, lifestyle and the cloth that suits both. Over three hundred bunches from the finest mills.</p></div></article>
-        <article class="step"><span class="step__n">02</span><div><h3>Measurement</h3><p>Every slope of the shoulder, every turn of the stance recorded and drafted into a personal paper pattern.</p></div></article>
-        <article class="step"><span class="step__n">03</span><div><h3>Fittings</h3><p>A basted fitting, a forward fitting, a finished fitting. The garment learns your body in stages.</p></div></article>
-        <article class="step"><span class="step__n">04</span><div><h3>Delivery</h3><p>Pressed by hand, presented in our garment carrier, and kept on file for every commission after.</p></div></article>
-      </div>
+      <div class="stats"></div>
+      <div class="steps"></div>
     </section>
 
     <!-- SHOP -->
-    <section class="shop" id="shop">
+    <section class="shop" id="shop" data-section="shop">
       <header class="shop__head">
-        <div><p class="eyebrow">Ready to Wear</p><h2 class="display">The Edit</h2></div>
-        <div class="filters" role="tablist">
-          <button class="is-active" data-filter="all">All</button>
-          <button data-filter="suits">Suits</button>
-          <button data-filter="outerwear">Outerwear</button>
-          <button data-filter="foot">Footwear</button>
-          <button data-filter="acc">Accessories</button>
-        </div>
+        <div><p class="eyebrow"></p><h2 class="display"></h2></div>
+        <div class="filters" role="tablist"></div>
       </header>
       <div class="grid" id="grid"></div>
     </section>
 
     <!-- QUOTE / PARALLAX -->
-    <section class="quote">
-      <div class="quote__mark"><img src="assets/brand/logo-mark.png" alt="" /></div>
-      <blockquote data-split>“Elegance is the only beauty that never fades.”</blockquote>
+    <section class="quote" data-section="quote">
+      <div class="quote__mark"><img src="assets/brand/logo-mark.png" alt="" data-logo="mark" /></div>
+      <blockquote data-split></blockquote>
     </section>
 
     <!-- APPOINTMENT -->
-    <section class="appointment" id="appointment">
+    <section class="appointment" id="appointment" data-section="appointment">
       <div class="appointment__inner">
-        <p class="eyebrow">Private Appointment</p>
-        <h2 class="display">Begin your commission.</h2>
+        <p class="eyebrow"></p>
+        <h2 class="display"></h2>
         <form class="form" novalidate>
           <label><span>Name</span><input name="name" required autocomplete="name" /></label>
           <label><span>Email</span><input name="email" type="email" required autocomplete="email" /></label>
           <label><span>Interest</span>
-            <select name="interest"><option>Bespoke Suit</option><option>Evening Wear</option><option>Wedding</option><option>Shirting</option></select>
+            <select name="interest"></select>
           </label>
           <label><span>Preferred date</span><input name="date" type="date" /></label>
-          <button type="submit" class="btn-gold" data-magnetic><span>Request appointment</span></button>
+          <button type="submit" class="btn-gold" data-magnetic><span></span></button>
           <p class="form__msg" role="status" aria-live="polite"></p>
         </form>
       </div>
@@ -287,13 +228,9 @@
   </main>
 
   <footer class="footer">
-    <img src="assets/brand/logo-lockup.png" alt="Angelico by Mhd Al Sousi" class="footer__logo" />
-    <div class="footer__cols">
-      <div><h4>Visit</h4><p>By appointment only</p></div>
-      <div><h4>Follow</h4><p><a href="#">Instagram</a><br /><a href="#">Pinterest</a></p></div>
-      <div><h4>House</h4><p><a href="#atelier">Atelier</a><br /><a href="#shop">Shop</a></p></div>
-    </div>
-    <p class="footer__legal">© <span id="year"></span> Angelico by Mhd Al Sousi. All rights reserved.</p>
+    <img src="assets/brand/logo-lockup.png" alt="Angelico by Mhd Al Sousi" class="footer__logo" data-logo="lockup" />
+    <div class="footer__cols"></div>
+    <p class="footer__legal"></p>
   </footer>
 
   <div class="toast" role="status" aria-live="polite"></div>
@@ -302,6 +239,7 @@
   <script src="js/vendor/ScrollTrigger.min.js"></script>
   <script src="js/vendor/lenis.min.js"></script>
   <script src="js/config.js"></script>
+  <script src="js/content.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>
