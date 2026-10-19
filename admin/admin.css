@@ -160,7 +160,7 @@ input[type="color"] { width: 48px; height: 38px; padding: 2px; background: none;
 .tile:hover .tile__acts, .tile:focus-within .tile__acts { opacity: 1; }
 .tile__acts .icon { background: rgba(11, 17, 24, 0.85); }
 button.tile:hover { border-color: var(--gold); }
-.drop { border: 1px dashed var(--line); border-radius: var(--r); padding: 22px; text-align: center; color: var(--dim); margin-bottom: 16px; transition: border-color 0.2s, background 0.2s; }
+.drop { display: block; cursor: pointer; border: 1px dashed var(--line); border-radius: var(--r); padding: 22px; text-align: center; color: var(--dim); margin-bottom: 16px; transition: border-color 0.2s, background 0.2s; }
 .drop.is-over { border-color: var(--gold); background: rgba(200, 169, 106, 0.08); }
 
 /* ---- Modal & toast ---- */

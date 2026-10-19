@@ -206,7 +206,7 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 .collections__head { padding: 0 var(--gutter); margin-bottom: 5vh; }
 .collections__track { display: flex; gap: clamp(16px, 3vw, 40px); padding: 0 var(--gutter); width: max-content; will-change: transform; }
 .card {
-  position: relative; width: clamp(260px, 30vw, 420px); flex: none;
+  position: relative; width: clamp(220px, min(max(30vw, 260px), calc((100vh - 340px) * 0.8333)), 420px); flex: none;
   border: 1px solid var(--line); background: linear-gradient(160deg, rgba(42, 58, 74, 0.55), rgba(18, 26, 36, 0.4));
   overflow: hidden; transition: border-color .6s var(--ease);
 }
@@ -229,7 +229,7 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 
 /* ---------- Atelier ---------- */
 .atelier { padding: 20vh var(--gutter) 10vh; max-width: 1400px; margin: 0 auto; }
-.atelier__head .display { max-width: 12ch; }
+.atelier__head .display { max-width: 16ch; }
 .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); margin: 10vh 0; }
 .stat { background: var(--navy-900); padding: 40px 28px; }
 .stat b { display: block; font-family: var(--serif); font-weight: 300; font-size: clamp(3rem, 6vw, 5.4rem); line-height: 1; color: var(--gold-2); }
@@ -405,3 +405,9 @@ html[dir="rtl"] .product__price { direction: ltr; }
 @media (prefers-reduced-motion: reduce) { .collections__pin { height: auto; padding: 10vh 0; overflow-x: auto; } }
 .collections__pin { direction: ltr; }
 html[dir="rtl"] .collections__head { direction: rtl; }
+
+/* Size cards from the window height too, so the pinned gallery never outgrows a short window. */
+@supports (height: 100svh) { .card { width: clamp(220px, min(max(30vw, 260px), calc((100svh - 340px) * 0.8333)), 420px); } }
+@media (max-height: 700px) { .collections__head { margin-bottom: 2vh; } .card__meta { padding: 14px 20px 18px; } .card__meta h3 { font-size: 1.5rem; } }
+/* Let big serif letters overhang their box without being clipped by the word reveal. */
+[data-split] .w { padding-inline: 0.08em; margin-inline: -0.08em; }
