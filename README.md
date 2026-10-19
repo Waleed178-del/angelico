@@ -19,7 +19,9 @@ content/site.json     ALL editable content (the admin edits this file)
 css/style.css         design tokens (from the logo navy #2A3A4A) and layout
 js/content.js         loads content/site.json and renders the page
 js/main.js            GSAP + ScrollTrigger + Lenis animations, shop logic
-admin/                the admin dashboard and CMS (no server needed)
+admin/                the admin dashboard and CMS
+supabase/             database schema and setup guide (schema.sql, README.md)
+js/supabase-config.js your Supabase URL and anon key
 assets/brand/         logo extracted from the original artwork (transparent PNG)
 assets/products/      product photos (WebP, 900x1125)
 assets/sequence/      Kling video frames (generated, see KLING.md)
@@ -61,13 +63,18 @@ numbers and steps, quote, appointment form options, navigation, footer, logos,
 currency, colors, and the image library.
 
 ### How it saves
-GitHub Pages has no server, so the admin saves by committing to this repository
-through the GitHub API. Press **Publish** and `content/site.json` (and any
+**With Supabase (recommended)**, follow `supabase/README.md`. Content, history,
+photos and appointment requests live in your Supabase project, the admin signs in
+with email and password, and publishing is instant. This is active as soon as
+`js/supabase-config.js` has your project URL and anon key.
+
+**Without Supabase** (the default until you configure it), GitHub Pages has no
+server, so the admin saves by committing to this repository through the GitHub API. Press **Publish** and `content/site.json` (and any
 uploaded images) are committed to the branch GitHub Pages deploys, normally
 `gh-pages`. The live site updates in a minute or two. Every publish is a git
 commit, so any version can be restored from the dashboard.
 
-### Signing in
+### Signing in (GitHub mode)
 1. GitHub, Settings, Developer settings, Fine-grained tokens, Generate new token.
 2. Repository access: only this repository.
 3. Permissions: Contents Read and write. Optionally Pages Read-only for deploy status.

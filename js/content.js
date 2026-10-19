@@ -57,10 +57,39 @@
         if (draft) return { data: JSON.parse(draft), preview: true };
       } catch (e) { /* fall through to published content */ }
     }
+    const sb = window.AngelicoSupabase?.configured?.() ? window.AngelicoSupabase.cfg() : null;
+    if (sb) {
+      // Live content from Supabase. If it is unreachable or empty, fall back to the file below.
+      try {
+        const ctl = new AbortController();
+        const timer = setTimeout(() => ctl.abort(), 7000);
+        const res = await fetch(`${sb.url.replace(/\/+$/, "")}/rest/v1/site_content?key=eq.published&select=data`, {
+          headers: { apikey: sb.anonKey, Authorization: `Bearer ${sb.anonKey}` }, cache: "no-store", signal: ctl.signal
+        });
+        clearTimeout(timer);
+        if (res.ok) {
+          const rows = await res.json();
+          if (rows[0]?.data) return { data: rows[0].data, preview: false };
+        }
+      } catch (e) { console.warn("Angelico: Supabase unavailable, using content/site.json", e); }
+    }
     const res = await fetch(`content/site.json?v=${Date.now()}`, { cache: "no-store" });
     if (!res.ok) throw new Error(`content/site.json returned ${res.status}`);
     return { data: await res.json(), preview: false };
   }
+
+  // Sends an appointment request to Supabase. Visitors may insert but never read.
+  async function submitAppointment(row) {
+    const sb = window.AngelicoSupabase?.configured?.() ? window.AngelicoSupabase.cfg() : null;
+    if (!sb) throw new Error("Supabase is not configured");
+    const res = await fetch(`${sb.url.replace(/\/+$/, "")}/rest/v1/appointments`, {
+      method: "POST",
+      headers: { apikey: sb.anonKey, Authorization: `Bearer ${sb.anonKey}`, "Content-Type": "application/json", Prefer: "return=minimal" },
+      body: JSON.stringify(row)
+    });
+    if (!res.ok) throw new Error(`Supabase returned ${res.status}`);
+  }
+  const hasBackend = () => !!window.AngelicoSupabase?.configured?.();
 
   function formatter(settings) {
     const cur = settings?.currency || {};
@@ -212,5 +241,5 @@
     const u = new URL(location.href); u.searchParams.delete("lang"); location.href = u.toString();
   }
 
-  window.AngelicoContent = { load, render, formatter, DRAFT_KEY, L, ui, setLang, get lang() { return LANG; } };
+  window.AngelicoContent = { load, render, formatter, DRAFT_KEY, L, ui, setLang, submitAppointment, hasBackend, get lang() { return LANG; } };
 })();

@@ -1,13 +1,14 @@
 /*
   Angelico Admin.
-  A no-server CMS: it edits content/site.json and uploads images by committing
-  to the GitHub repository. Authentication is a GitHub token with write access
-  to this repository, so only people GitHub lets write to the repo can publish.
+  A no-server CMS. Content and images live either in Supabase (email and password
+  sign in, instant publishing, appointment inbox) or, until Supabase is configured
+  in js/supabase-config.js, in the GitHub repository (token sign in).
+  Both sit behind the same interface in backends.js.
 */
 (() => {
   "use strict";
 
-  const { GitHub, textToBase64, bytesToBase64 } = window.AngelicoGitHub;
+  const { GitHubBackend, SupabaseBackend, ConflictError } = window.AngelicoBackends;
 
   /* ------------------------------------------------------------ helpers */
   const $ = (s, c = document) => c.querySelector(s);
@@ -21,8 +22,6 @@
 
   const KEYS = { draft: "angelico.draft", conn: "angelico.admin.conn", token: "angelico.admin.token" };
   const IMG_EXT = /\.(png|jpe?g|webp|gif|svg|avif)$/i;
-  const MEDIA_DIRS = ["assets/products", "assets/uploads", "assets/brand"];
-  const CONTENT_PATH = "content/site.json";
   const isLocal = ["localhost", "127.0.0.1"].includes(location.hostname);
   const API = (isLocal && new URLSearchParams(location.search).get("api")) || "https://api.github.com";
 
@@ -38,7 +37,7 @@
 
   /* -------------------------------------------------------------- state */
   const S = {
-    gh: null, user: "", content: null, published: null, baseSha: null,
+    be: null, content: null, published: null, newRequests: 0, requests: [],
     view: "dashboard", media: null, thumbs: {}, ui: { pq: "", pcat: "all" }, busy: false,
     lang: (() => { try { return sessionStorage.getItem("angelico.admin.lang") === "ar" ? "ar" : "en"; } catch (e) { return "en"; } })()
   };
@@ -86,7 +85,7 @@
     return { owner: m[1], repo: seg && seg !== "admin" ? seg : `${m[1]}.github.io` };
   }
 
-  function showLogin(error = "") {
+  function showGitHubLogin(error = "") {
     $("#app").hidden = true;
     const box = $("#login");
     box.hidden = false;
@@ -127,7 +126,7 @@
       const conn = { owner: f.owner.value.trim(), repo: f.repo.value.trim(), branch: f.branch.value.trim() };
       const token = f.token.value.trim();
       try {
-        await connect({ ...conn, token });
+        await startSession(new GitHubBackend({ ...conn, token, api: API }));
         try {
           localStorage.setItem(KEYS.conn, JSON.stringify(conn));
           sessionStorage.removeItem(KEYS.token); localStorage.removeItem(KEYS.token);
@@ -140,50 +139,93 @@
     });
   }
 
-  async function connect({ owner, repo, branch, token }) {
-    const gh = new GitHub({ owner, repo, branch, token, api: API });
-    const info = await gh.repoInfo();
-    if (info.permissions && !info.permissions.push) throw new Error("This token can read the repository but cannot write to it. Give it Contents: Read and write.");
-    let file;
-    try {
-      file = await gh.getFile(CONTENT_PATH);
-    } catch (e) {
-      if (e.status === 404) throw new Error(`Could not find ${CONTENT_PATH} on branch "${branch}". Check the branch name, or deploy the site files to that branch first.`);
-      throw e;
+  function showLogin(error = "") {
+    $("#app").hidden = true;
+    $("#login").hidden = false;
+    if (window.AngelicoSupabase.configured()) showSupabaseLogin(error); else showGitHubLogin(error);
+  }
+
+  function showSupabaseLogin(error = "") {
+    const box = $("#login");
+    box.innerHTML = `
+      <form class="login__card" id="loginForm">
+        <img class="login__logo" src="../assets/brand/logo-mark.png" alt="" />
+        <h1>Angelico Admin</h1>
+        <p style="text-align:center">Sign in with your administrator account.</p>
+        <label class="field" style="margin-bottom:14px"><span>Email</span><input type="email" name="email" required autocomplete="username" style="width:100%;padding:10px 12px;background:rgba(0,0,0,.25);border:1px solid var(--line);border-radius:8px;color:var(--ivory)" /></label>
+        <label class="field"><span>Password</span><input type="password" name="password" required autocomplete="current-password" style="width:100%;padding:10px 12px;background:rgba(0,0,0,.25);border:1px solid var(--line);border-radius:8px;color:var(--ivory)" /></label>
+        <p style="margin:14px 0 0"><label class="switch"><input type="checkbox" name="remember" checked /> Keep me signed in on this device</label></p>
+        <small>Turn this off on shared computers.</small>
+        <p class="err" id="loginErr">${esc(error)}</p>
+        <button class="btn btn--gold" type="submit" style="width:100%;padding:12px">Sign in</button>
+      </form>`;
+    $("#loginForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const f = e.currentTarget; const btn = $("button", f);
+      btn.disabled = true; btn.textContent = "Signing in...";
+      const be = new SupabaseBackend(window.AngelicoSupabase.cfg());
+      try {
+        await be.login(f.email.value.trim(), f.password.value, f.remember.checked);
+        await startSession(be);
+      } catch (err) {
+        $("#loginErr").textContent = err.message;
+        btn.disabled = false; btn.textContent = "Sign in";
+      }
+    });
+  }
+
+  async function startSession(be) {
+    const { content } = await be.connect();
+    let seeded = false;
+    if (content == null) {
+      // A fresh Supabase project has nothing published yet. Start from the site's own content file.
+      const res = await fetch("../content/site.json", { cache: "no-store" });
+      if (!res.ok) throw new Error("Nothing is published yet and the starter content could not be loaded.");
+      S.published = {}; S.content = normalize(await res.json()); seeded = true;
+    } else {
+      S.published = normalize(content);
+      S.content = clone(S.published);
     }
-    S.gh = gh;
-    S.baseSha = file.sha;
-    S.published = normalize(JSON.parse(file.text));
-    S.content = clone(S.published);
-    try {
-      const draft = JSON.parse(localStorage.getItem(KEYS.draft) || "null");
-      if (draft && JSON.stringify(draft) !== pubStr() && confirm("You have unpublished changes saved in this browser from an earlier session.\n\nOK restores them. Cancel loads the published version.")) S.content = normalize(draft);
-      else if (draft && JSON.stringify(draft) !== pubStr()) localStorage.removeItem(KEYS.draft);
-    } catch (e) { /* ignore broken draft */ }
+    S.be = be;
+    if (!seeded) {
+      try {
+        const draft = JSON.parse(localStorage.getItem(KEYS.draft) || "null");
+        if (draft && JSON.stringify(draft) !== pubStr() && confirm("You have unpublished changes saved in this browser from an earlier session.\n\nOK restores them. Cancel loads the published version.")) S.content = normalize(draft);
+        else if (draft && JSON.stringify(draft) !== pubStr()) localStorage.removeItem(KEYS.draft);
+      } catch (e) { /* ignore broken draft */ }
+    }
     S.media = null;
     $("#login").hidden = true;
     $("#app").hidden = false;
-    $("#liveLink").href = `https://${owner}.github.io/${repo}/`;
-    if (isLocal) $("#liveLink").href = "../";
+    $("#liveLink").href = isLocal ? "../" : be.liveUrl;
+    if (be.supportsRequests) refreshRequestCount();
     route();
+    if (seeded) toast("Nothing is published in Supabase yet. This is your starting content. Press Publish to put it live.");
+  }
+
+  function refreshRequestCount() {
+    S.be.countNewRequests().then((n) => { S.newRequests = n; if (S.be) renderNav(); }).catch(() => { /* not critical */ });
   }
 
   function disconnect() {
     if (isDirty() && !confirm("You have unpublished changes. They stay saved in this browser as a draft. Disconnect anyway?")) return;
     try { sessionStorage.removeItem(KEYS.token); localStorage.removeItem(KEYS.token); } catch (e) { /* ignore */ }
-    S.gh = null;
+    const be = S.be; S.be = null;
+    if (be) be.signOut().catch(() => { /* already signed out */ });
     showLogin();
   }
 
   /* ---------------------------------------------------------- shell/nav */
-  const NAV = [
+  const NAV_ALL = [
     ["dashboard", "Dashboard"], ["products", "Products"], ["collections", "Collections"], ["hero", "Hero"],
-    ["story", "Story and quote"], ["atelier", "Atelier"], ["appointment", "Appointment"],
+    ["story", "Story and quote"], ["atelier", "Atelier"], ["appointment", "Appointment"], ["requests", "Requests"],
     ["navfooter", "Navigation and footer"], ["media", "Media library"], ["settings", "Settings"]
   ];
+  const navItems = () => NAV_ALL.filter(([id]) => id !== "requests" || S.be?.supportsRequests);
 
   function renderNav() {
-    const counts = { products: C().shop.products.length, collections: C().collections.items.length };
+    const counts = { products: C().shop.products.length, collections: C().collections.items.length, requests: S.newRequests || null };
+    const NAV = navItems();
     $("#nav").innerHTML = NAV.map(([id, label]) =>
       `<a href="#/${id}" class="${S.view === id ? "is-active" : ""}">${label}${counts[id] != null ? `<span class="count">${counts[id]}</span>` : ""}</a>`).join("");
     $("#viewTitle").textContent = NAV.find((n) => n[0] === S.view)?.[1] || "Dashboard";
@@ -207,10 +249,10 @@
 
   function route() {
     const id = (location.hash.match(/^#\/(\w+)/) || [])[1];
-    S.view = VIEWS[id] ? id : "dashboard";
+    S.view = VIEWS[id] && (id !== "requests" || S.be?.supportsRequests) ? id : "dashboard";
     render();
   }
-  window.addEventListener("hashchange", () => { if (S.gh) route(); });
+  window.addEventListener("hashchange", () => { if (S.be) route(); });
 
   function render() {
     renderNav();
@@ -352,17 +394,18 @@
     const warns = healthChecks();
     const cov = coverage();
     return `
-      <p class="lead">Edit anything on the site from the menu. Changes stay as a draft in this browser until you press <b>Publish</b>, which saves them to GitHub and updates the live site within a minute or two.</p>
+      <p class="lead">Edit anything on the site from the menu. Changes stay as a draft in this browser until you press <b>Publish</b>, which saves them to ${S.be.kind === "supabase" ? "Supabase" : "GitHub"}. ${S.be.publishNote}</p>
       <div class="stats">
         <div class="stat"><b>${prods.filter((p) => p.visible !== false).length}</b><span>Products live (${prods.length} total)</span></div>
         <div class="stat"><b>${c.collections.items.filter((p) => p.visible !== false).length}</b><span>Wardrobe collections</span></div>
         <div class="stat"><b>${prods.filter((p) => p.soldOut).length}</b><span>Sold out</span></div>
         <div class="stat"><b>${cov.pct}%</b><span>Arabic translated</span></div>
+        ${S.be.supportsRequests ? `<div class="stat"><b>${S.newRequests}</b><span>New requests</span></div>` : ""}
       </div>
       <div class="grid2" style="align-items:start">
         ${card("Status", `<ul class="checks">
           <li><span class="dot ${changed.length ? "dot--warn" : ""}"></span><span>${changed.length ? `Unpublished changes in: <b>${changed.map(esc).join(", ")}</b>` : "Everything you see here is live."}</span></li>
-          <li id="buildStatus"><span class="dot dot--warn"></span><span class="muted">Checking site deployment...</span></li>
+          <li id="buildStatus"><span class="dot dot--warn"></span><span class="muted">Checking site status...</span></li>
           ${c.settings.arabicEnabled !== false ? `<li><span class="dot ${cov.missing ? "dot--warn" : ""}"></span><span>${cov.missing ? `<b>${cov.missing}</b> text field${cov.missing > 1 ? "s still need" : " still needs"} Arabic. <button class="linkbtn" style="color:var(--gold-2)" data-act="lang" data-l="ar">Edit in Arabic</button>` : "Everything is translated to Arabic."}</span></li>` : ""}
           ${warns.map((w) => `<li><span class="dot dot--warn"></span><span>${w}</span></li>`).join("") || `<li><span class="dot"></span><span>No problems found.</span></li>`}
         </ul>`)}
@@ -372,32 +415,27 @@
           <button class="btn" data-act="preview">Preview draft</button>
           <a class="btn" href="${esc($("#liveLink").href)}" target="_blank" rel="noopener">Open live site</a></div>`)}
       </div>
-      ${card("Publish history", `<ul class="hist" id="history"><li class="muted">Loading history...</li></ul>`, { sub: `Every publish is a commit on <code>${esc(S.gh.branch)}</code>. Restore any earlier version as a draft.` })}`;
+      ${card("Publish history", `<ul class="hist" id="history"><li class="muted">Loading history...</li></ul>`, { sub: S.be.kind === "github" ? `Every publish is a commit on <code>${esc(S.be.branch)}</code>. Restore any earlier version as a draft.` : "Every publish is saved. Restore any earlier version as a draft." })}`;
   };
   AFTER.dashboard = async () => {
-    try {
-      const list = await S.gh.commits(CONTENT_PATH, 8);
+    const be = S.be;
+    be.history().then((list) => {
       const el = $("#history");
       if (!el) return;
-      el.innerHTML = list.map((c) => `<li><span class="msg"><b>${esc((c.commit.message || "").split("\n")[0])}</b><br /><small>${esc(new Date(c.commit.author.date).toLocaleString())} by ${esc(c.commit.author.name)}</small></span>
-        <button class="btn btn--sm" data-act="restore" data-sha="${esc(c.sha)}">Restore</button></li>`).join("") || `<li class="muted">No history yet.</li>`;
-    } catch (e) { const el = $("#history"); if (el) el.innerHTML = `<li class="muted">Could not load history: ${esc(e.message)}</li>`; }
-    try {
-      const b = await S.gh.pagesBuild();
+      el.innerHTML = list.map((h) => `<li><span class="msg"><b>${esc(h.note)}</b><br /><small>${esc(new Date(h.date).toLocaleString())}${h.author ? ` by ${esc(h.author)}` : ""}</small></span>
+        <button class="btn btn--sm" data-act="restore" data-id="${esc(h.id)}">Restore</button></li>`).join("") || `<li class="muted">No history yet.</li>`;
+    }).catch((e) => { const el = $("#history"); if (el) el.innerHTML = `<li class="muted">Could not load history: ${esc(e.message)}</li>`; });
+    be.status().then((s) => {
       const el = $("#buildStatus");
-      if (!el) return;
-      const ok = b.status === "built";
-      el.innerHTML = `<span class="dot ${ok ? "" : "dot--warn"}"></span><span>Site deployment: <b>${esc(b.status)}</b>${b.updated_at ? `, ${esc(new Date(b.updated_at).toLocaleString())}` : ""}${b.error?.message ? `. ${esc(b.error.message)}` : ""}</span>`;
-    } catch (e) {
-      const el = $("#buildStatus");
-      if (el) el.innerHTML = `<span class="dot dot--warn"></span><span class="muted">Deployment status unavailable (${e.status === 404 ? "GitHub Pages is not enabled for this repository, or the token cannot read it" : esc(e.message)}).</span>`;
-    }
+      if (el) el.innerHTML = `<span class="dot ${s.ok ? "" : "dot--warn"}"></span><span>${esc(s.text)}</span>`;
+    });
+    if (be.supportsRequests) refreshRequestCount();
   };
 
   function healthChecks() {
     const c = C(); const w = [];
     const s = c.settings;
-    if (c.sections.appointment !== false && !s.formEndpoint && !s.contactEmail) w.push(`The appointment form is not connected, so visitors cannot reach you. Add a contact email or form endpoint in <a href="#/settings">Settings</a>.`);
+    if (c.sections.appointment !== false && !s.formEndpoint && !s.contactEmail && !S.be.supportsRequests) w.push(`The appointment form is not connected, so visitors cannot reach you. Add a contact email or form endpoint in <a href="#/settings">Settings</a>.`);
     const noImg = c.shop.products.filter((p) => p.visible !== false && !p.image).length;
     if (noImg) w.push(`${noImg} visible product${noImg > 1 ? "s have" : " has"} no image.`);
     const zero = c.shop.products.filter((p) => p.visible !== false && !(Number(p.price) > 0)).length;
@@ -531,7 +569,37 @@
       ${fld({ label: "Small heading", path: "appointment.eyebrow" })}${fld({ label: "Title", path: "appointment.title" })}
       ${fld({ label: "Button text", path: "appointment.button" })}${fld({ label: "Message after sending", path: "appointment.success" })}</div>`, { right: sectionToggle("appointment") })}
     ${card("Interest options", strList("appointment.interests", { addLabel: "Add option", ph: "Wedding" }), { sub: "The dropdown visitors choose from." })}
-    ${card("Where requests go", `<p style="margin-top:0">${C().settings.formEndpoint ? `Requests are sent to your form endpoint.` : C().settings.contactEmail ? `Requests open the visitor's email app addressed to <b>${esc(C().settings.contactEmail)}</b>.` : `<b>Not connected.</b> Visitors will see a notice that the form is not set up.`}</p><a class="btn" href="#/settings">Change in Settings</a>`)}`;
+    ${card("Where requests go", `<p style="margin-top:0">${S.be.supportsRequests ? `Requests are saved to your Supabase database. Read and manage them under <a href="#/requests">Requests</a>.` : C().settings.formEndpoint ? `Requests are sent to your form endpoint.` : C().settings.contactEmail ? `Requests open the visitor's email app addressed to <b>${esc(C().settings.contactEmail)}</b>.` : `<b>Not connected.</b> Visitors will see a notice that the form is not set up.`}</p><a class="btn" href="#/settings">Change in Settings</a>`)}`;
+
+  /* Requests (appointment inbox, Supabase only) */
+  const REQ_STATUS = [["new", "New"], ["contacted", "Contacted"], ["booked", "Booked"], ["closed", "Closed"]];
+  VIEWS.requests = () => `
+    <p class="lead">Appointment requests sent from the website form, newest first. Change the status as you work through them and add private notes.</p>
+    <div class="tools"><div class="chips" id="reqChips"></div><button class="btn" style="margin-left:auto" data-act="export-requests">Download CSV</button></div>
+    <section class="card" style="padding:8px 14px"><div id="reqList"><p class="muted" style="padding:14px">Loading requests...</p></div></section>`;
+  AFTER.requests = async () => {
+    try {
+      S.requests = await S.be.listRequests();
+      S.newRequests = S.requests.filter((r) => r.status === "new").length;
+      renderNav(); renderRequests();
+    } catch (e) { const el = $("#reqList"); if (el) el.innerHTML = `<p class="muted" style="padding:14px">${esc(e.message)}</p>`; }
+  };
+  function renderRequests() {
+    if (S.view !== "requests") return;
+    const f = S.ui.rstatus || "all";
+    const count = (s) => S.requests.filter((r) => s === "all" || r.status === s).length;
+    $("#reqChips").innerHTML = [["all", "All"], ...REQ_STATUS].map(([id, l]) => `<button class="chip ${f === id ? "is-on" : ""}" data-act="rstatus" data-id="${id}">${l} (${count(id)})</button>`).join("");
+    const rows = S.requests.filter((r) => f === "all" || r.status === f);
+    $("#reqList").innerHTML = rows.length ? `<table class="tbl"><thead><tr><th>Received</th><th>Visitor</th><th class="hide-sm">Request</th><th>Status</th><th class="hide-sm">Notes</th><th></th></tr></thead><tbody>
+      ${rows.map((r) => `<tr>
+        <td><small>${esc(new Date(r.created_at).toLocaleString())}</small></td>
+        <td><div class="name">${esc(r.name)}</div><a href="mailto:${esc(r.email)}">${esc(r.email)}</a></td>
+        <td class="hide-sm">${esc(r.interest || "")}${r.preferred_date ? `<br /><small>Prefers ${esc(r.preferred_date)}</small>` : ""}${r.lang ? ` <span class="pill">${esc(r.lang)}</span>` : ""}</td>
+        <td><select data-req="status" data-id="${esc(r.id)}">${REQ_STATUS.map(([v, l]) => `<option value="${v}" ${r.status === v ? "selected" : ""}>${l}</option>`).join("")}</select></td>
+        <td class="hide-sm"><textarea data-req="notes" data-id="${esc(r.id)}" rows="2" placeholder="Private notes">${esc(r.notes || "")}</textarea></td>
+        <td class="acts"><button class="icon icon--danger" data-act="del-request" data-id="${esc(r.id)}" title="Delete">&#10005;</button></td></tr>`).join("")}</tbody></table>`
+      : `<div class="empty">${S.requests.length ? "No requests with this status." : "No requests yet. They appear here when visitors use the appointment form."}</div>`;
+  }
 
   /* Navigation and footer */
   VIEWS.navfooter = () => `
@@ -575,15 +643,19 @@
     ${card("Backup", `<div class="row"><button class="btn" data-act="export">Download content backup</button>
       <label class="btn" style="cursor:pointer">Import backup<input type="file" accept="application/json" id="importFile" hidden /></label></div>
       <p class="muted" style="margin-bottom:0">Importing loads the file as a draft. Nothing changes on the live site until you publish.</p>`)}
-    ${card("Connection", `<p style="margin-top:0">Connected to <code>${esc(S.gh.owner)}/${esc(S.gh.repo)}</code> on branch <code>${esc(S.gh.branch)}</code>.</p>
-      <p class="muted">The live site reads from the branch GitHub Pages deploys. If your site is deployed from a different branch, disconnect and reconnect with that branch name.</p>
-      <button class="btn btn--danger" data-act="disconnect">Disconnect</button>`)}`;
+    ${card("Connection", S.be.kind === "supabase"
+      ? `<p style="margin-top:0">Connected to Supabase project <code>${esc(S.be.where)}</code> as <b>${esc(S.be.user?.email || "")}</b>.</p>
+         <p class="muted">Content, history, photos and appointment requests are stored in your Supabase project.</p>
+         <button class="btn btn--danger" data-act="disconnect">Sign out</button>`
+      : `<p style="margin-top:0">Connected to <code>${esc(S.be.where)}</code> on branch <code>${esc(S.be.branch)}</code>.</p>
+         <p class="muted">The live site reads from the branch GitHub Pages deploys. If your site is deployed from a different branch, disconnect and reconnect with that branch name.</p>
+         <button class="btn btn--danger" data-act="disconnect">Disconnect</button>`)}`;
 
   /* Media */
   VIEWS.media = () => `
     <p class="lead">Upload photos once, then choose them for any product or collection. Photos are resized to 1600 pixels and compressed automatically.</p>
     <label class="drop" id="drop"><input type="file" id="mediaUpload" accept="image/*" multiple hidden />
-      <b>Drop images here or click to upload</b><br /><small>JPG, PNG, WebP, GIF or SVG</small></label>
+      <b>Drop images here or click to upload</b><br /><small>JPG, PNG, WebP or GIF</small></label>
     <div id="mediaGrid" class="media"><p class="muted">Loading images...</p></div>`;
   AFTER.media = async () => {
     await ensureMedia();
@@ -593,10 +665,14 @@
 
   async function ensureMedia(force) {
     if (S.media && !force) return S.media;
-    const all = [];
-    for (const d of MEDIA_DIRS) {
-      const files = await S.gh.listDir(d);
-      files.filter((f) => IMG_EXT.test(f.name)).forEach((f) => all.push({ path: f.path, name: f.name, sha: f.sha, size: f.size, dir: d }));
+    const all = await S.be.listMedia();
+    if (S.be.kind === "supabase") {
+      // Photos already used by the site files are not in storage, so list them too (they cannot be deleted here).
+      const seen = new Set(all.map((m) => m.path));
+      const used = [];
+      const walk = (o) => { if (Array.isArray(o)) o.forEach(walk); else if (o && typeof o === "object") Object.entries(o).forEach(([k, v]) => { if (k === "image" || ["mark", "wordmark", "lockup"].includes(k)) { if (typeof v === "string" && v) used.push(v); } else walk(v); }); };
+      walk(C()); walk(S.published);
+      used.forEach((p) => { if (!seen.has(p)) { seen.add(p); all.push({ path: p, name: p.split("/").pop(), dir: "site", static: true, size: 0 }); } });
     }
     S.media = all;
     return all;
@@ -614,7 +690,7 @@
       if (pick) return `<button type="button" class="tile" data-act="choose" data-path="${esc(m.path)}">${img}</button>`;
       return `<div class="tile">${img}<div class="tile__acts">
         <button class="icon" data-act="copy-path" data-path="${esc(m.path)}" title="Copy path">&#10064;</button>
-        <button class="icon icon--danger" data-act="del-media" data-path="${esc(m.path)}" data-sha="${esc(m.sha)}" title="Delete">&#10005;</button></div></div>`;
+        ${m.static ? "" : `<button class="icon icon--danger" data-act="del-media" data-path="${esc(m.path)}" title="Delete">&#10005;</button>`}</div></div>`;
     }).join("");
   }
 
@@ -629,7 +705,7 @@
   function closeModal(id = "modal") {
     const m = document.getElementById(id);
     if (m) { m.hidden = true; m.innerHTML = ""; }
-    if (id === "modal" && S.gh) rerender();
+    if (id === "modal" && S.be) rerender();
   }
   document.addEventListener("keydown", (e) => {
     if (e.key !== "Escape") return;
@@ -683,7 +759,7 @@
   /* ------------------------------------------------------------- images */
   async function processImage(file, keepPng) {
     if (file.type === "image/svg+xml" || /\.svg$/i.test(file.name)) {
-      return { bytes: new Uint8Array(await file.arrayBuffer()), ext: "svg", preview: URL.createObjectURL(file) };
+      return { bytes: new Uint8Array(await file.arrayBuffer()), ext: "svg", mime: "image/svg+xml", preview: URL.createObjectURL(file) };
     }
     let bmp;
     try { bmp = await createImageBitmap(file); } catch (e) { throw new Error(`${file.name} is not an image this browser can read. Try JPG, PNG or WebP.`); }
@@ -694,7 +770,7 @@
     const png = keepPng || (file.type === "image/png" && file.size < 300 * 1024);
     const blob = await new Promise((r) => cv.toBlob(r, png ? "image/png" : "image/webp", 0.86));
     if (!blob) throw new Error(`Could not convert ${file.name}.`);
-    return { bytes: new Uint8Array(await blob.arrayBuffer()), ext: png ? "png" : "webp", preview: URL.createObjectURL(blob) };
+    return { bytes: new Uint8Array(await blob.arrayBuffer()), ext: png ? "png" : "webp", mime: png ? "image/png" : "image/webp", preview: URL.createObjectURL(blob) };
   }
 
   async function uploadFiles(files, { keepPng = false } = {}) {
@@ -703,11 +779,10 @@
       try {
         toast(`Uploading ${file.name}...`);
         const img = await processImage(file, keepPng);
-        const base = slug(file.name.replace(/\.[^.]+$/, ""));
-        const path = `assets/uploads/${base}-${Date.now().toString(36)}.${img.ext}`;
-        await S.gh.putFile(path, bytesToBase64(img.bytes), `Upload image ${base}`);
+        if (S.be.kind === "supabase" && img.ext === "svg") throw new Error("SVG uploads are not allowed. Convert it to PNG first.");
+        const { path, item } = await S.be.upload({ name: file.name.replace(/\.[^.]+$/, ""), bytes: img.bytes, ext: img.ext, mime: img.mime });
         S.thumbs[path] = img.preview;
-        (S.media = S.media || []).push({ path, name: path.split("/").pop(), sha: "", size: img.bytes.length, dir: "assets/uploads" });
+        (S.media = S.media || []).push(item);
         done.push(path);
       } catch (e) { toast(e.message, true); }
     }
@@ -734,7 +809,7 @@
     const warns = [...validate(), ...healthChecks().map((x) => x.replace(/<[^>]+>/g, "")), ...(C().settings.arabicEnabled !== false && cov.missing ? [`${cov.missing} text field${cov.missing > 1 ? "s have" : " has"} no Arabic yet. Visitors will see English there.`] : [])];
     openModal("modal", `
       <div class="modal__head"><h2>Publish changes</h2><button class="icon" data-act="close" title="Close">&#10005;</button></div>
-      <p style="margin-top:0">This saves your changes to <code>${esc(S.gh.owner)}/${esc(S.gh.repo)}</code> on <code>${esc(S.gh.branch)}</code>. The live site updates in about a minute or two.</p>
+      <p style="margin-top:0">This saves your changes to <code>${esc(S.be.where)}</code>${S.be.branch ? ` on <code>${esc(S.be.branch)}</code>` : ""}. ${S.be.publishNote}</p>
       <p class="label">Changed sections</p><ul class="diff">${changed.map((k) => `<li>${esc(k)}</li>`).join("") || "<li>None</li>"}</ul>
       ${warns.length ? `<p class="label">Heads up</p><ul class="diff">${warns.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>` : ""}
       <label class="field"><span>Note for the history</span><input type="text" id="commitMsg" value="Update site content" /></label>
@@ -746,18 +821,17 @@
     S.busy = true; refreshBar();
     const btn = $('[data-act="do-publish"]'); if (btn) { btn.disabled = true; btn.textContent = "Publishing..."; }
     try {
-      const remote = await S.gh.getFile(CONTENT_PATH);
-      let sha = remote.sha;
-      if (remote.sha !== S.baseSha && remote.text.trim() !== JSON.stringify(S.published, null, 2).trim()) {
+      try {
+        await S.be.publish(C(), msg);
+      } catch (e) {
+        if (!(e instanceof ConflictError)) throw e;
         if (!confirm("The published content changed since you opened the admin (maybe from another device).\n\nOK overwrites it with your version. Cancel keeps your draft so you can review.")) throw new Error("Publish cancelled.");
+        await S.be.publish(C(), msg, { force: true });
       }
-      const body = JSON.stringify(C(), null, 2) + "\n";
-      const res = await S.gh.putFile(CONTENT_PATH, textToBase64(body), msg, sha);
-      S.baseSha = res.content.sha;
       S.published = clone(C());
       try { localStorage.removeItem(KEYS.draft); } catch (e) { /* ignore */ }
       closeModal("modal");
-      toast("Published. The live site updates in a minute or two.");
+      toast(`Published. ${S.be.publishNote}`);
     } catch (e) {
       toast(e.message, true);
       if (btn) { btn.disabled = false; btn.textContent = "Publish now"; }
@@ -816,17 +890,36 @@
     },
     "new-collection": () => { C().collections.items.push(NEW.collection()); touch(); rerender(); openItem("collection", C().collections.items.length - 1); },
     pcat: (b) => { S.ui.pcat = b.dataset.id; rerender(); },
+    rstatus: (b) => { S.ui.rstatus = b.dataset.id; renderRequests(); },
+    "del-request": async (b) => {
+      const r = S.requests.find((x) => x.id === b.dataset.id);
+      if (!r || !confirm(`Delete the request from ${r.name}?`)) return;
+      try {
+        await S.be.deleteRequest(r.id);
+        S.requests = S.requests.filter((x) => x.id !== r.id);
+        S.newRequests = S.requests.filter((x) => x.status === "new").length;
+        renderNav(); renderRequests(); toast("Request deleted.");
+      } catch (e) { toast(e.message, true); }
+    },
+    "export-requests": () => {
+      const cols = ["created_at", "name", "email", "interest", "preferred_date", "lang", "status", "notes"];
+      const q = (v) => `"${String(v ?? "").replace(/"/g, '""')}"`;
+      const csv = [cols.join(","), ...S.requests.map((r) => cols.map((c) => q(r[c])).join(","))].join("\n");
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8" }));
+      a.download = `angelico-requests-${new Date().toISOString().slice(0, 10)}.csv`; a.click();
+    },
     pick: (b) => openPicker(b.dataset.path, !!b.dataset.keep),
     "clear-img": (b) => setImagePath(b.dataset.path, ""),
     choose: (b) => { setImagePath($("#pickGrid").dataset.target, b.dataset.path); closeModal("modal2"); },
     "copy-path": async (b) => { try { await navigator.clipboard.writeText(b.dataset.path); toast("Path copied."); } catch (e) { toast(b.dataset.path); } },
     "del-media": async (b) => {
       const path = b.dataset.path; const used = usageOf(path);
-      if (!confirm(`${used ? `This image is used ${used} time${used > 1 ? "s" : ""} on the site. Deleting it will leave those spots empty.\n\n` : ""}Delete ${path.split("/").pop()} from the repository?`)) return;
+      const item = (S.media || []).find((m) => m.path === path);
+      if (!item) return;
+      if (!confirm(`${used ? `This image is used ${used} time${used > 1 ? "s" : ""} on the site. Deleting it will leave those spots empty.\n\n` : ""}Delete ${item.name}?`)) return;
       try {
-        let sha = b.dataset.sha;
-        if (!sha) sha = (await S.gh.listDir(path.split("/").slice(0, -1).join("/"))).find((f) => f.path === path)?.sha;
-        await S.gh.deleteFile(path, sha, `Delete image ${path.split("/").pop()}`);
+        await S.be.deleteMedia(item);
         S.media = S.media.filter((m) => m.path !== path);
         $("#mediaGrid").innerHTML = mediaTiles(false); toast("Image deleted.");
       } catch (e) { toast(e.message, true); }
@@ -834,8 +927,7 @@
     restore: async (b) => {
       if (isDirty() && !confirm("Restoring replaces your current draft. Continue?")) return;
       try {
-        const f = await S.gh.getFile(CONTENT_PATH, b.dataset.sha);
-        S.content = normalize(JSON.parse(f.text)); touch(); rerender(); toast("Version loaded as a draft. Review it, then publish.");
+        S.content = normalize(await S.be.loadVersion(b.dataset.id)); touch(); rerender(); toast("Version loaded as a draft. Review it, then publish.");
       } catch (e) { toast(e.message, true); }
     },
     export: () => {
@@ -856,6 +948,19 @@
 
   document.addEventListener("change", async (e) => {
     const t = e.target;
+    if (t.dataset?.req) {
+      const r = S.requests.find((x) => x.id === t.dataset.id);
+      if (!r) return;
+      const patch = { [t.dataset.req]: t.dataset.req === "notes" ? (t.value.trim() || null) : t.value };
+      try {
+        await S.be.updateRequest(r.id, patch);
+        Object.assign(r, patch);
+        S.newRequests = S.requests.filter((x) => x.status === "new").length;
+        renderNav(); if (t.dataset.req === "status") renderRequests();
+        toast("Saved.");
+      } catch (err) { toast(err.message, true); }
+      return;
+    }
     if (t.id === "mediaUpload") {
       const done = await uploadFiles([...t.files]); t.value = "";
       if (done.length && S.view === "media") $("#mediaGrid").innerHTML = mediaTiles(false);
@@ -888,17 +993,23 @@
     }
   }));
 
-  window.addEventListener("beforeunload", (e) => { if (S.gh && isDirty()) { e.preventDefault(); e.returnValue = ""; } });
+  window.addEventListener("beforeunload", (e) => { if (S.be && isDirty()) { e.preventDefault(); e.returnValue = ""; } });
 
   /* --------------------------------------------------------------- init */
   (async function init() {
+    if (window.AngelicoSupabase.configured()) {
+      const be = new SupabaseBackend(window.AngelicoSupabase.cfg());
+      if (be.hasSession) { try { await startSession(be); return; } catch (e) { showLogin(e.message); return; } }
+      showLogin();
+      return;
+    }
     let conn = {}; let token = "";
     try {
       conn = JSON.parse(localStorage.getItem(KEYS.conn) || "{}");
       token = sessionStorage.getItem(KEYS.token) || localStorage.getItem(KEYS.token) || "";
     } catch (e) { /* ignore */ }
     if (conn.owner && conn.repo && conn.branch && token) {
-      try { await connect({ ...conn, token }); return; } catch (e) { showLogin(e.message); return; }
+      try { await startSession(new GitHubBackend({ ...conn, token, api: API })); return; } catch (e) { showGitHubLogin(e.message); $("#login").hidden = false; return; }
     }
     showLogin();
   })();

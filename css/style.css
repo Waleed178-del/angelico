@@ -411,3 +411,5 @@ html[dir="rtl"] .collections__head { direction: rtl; }
 @media (max-height: 700px) { .collections__head { margin-bottom: 2vh; } .card__meta { padding: 14px 20px 18px; } .card__meta h3 { font-size: 1.5rem; } }
 /* Let big serif letters overhang their box without being clipped by the word reveal. */
 [data-split] .w { padding-inline: 0.08em; margin-inline: -0.08em; }
+
+.hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
