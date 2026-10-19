@@ -160,7 +160,7 @@ input[type="color"] { width: 48px; height: 38px; padding: 2px; background: none;
 .tile:hover .tile__acts, .tile:focus-within .tile__acts { opacity: 1; }
 .tile__acts .icon { background: rgba(11, 17, 24, 0.85); }
 button.tile:hover { border-color: var(--gold); }
-.drop { border: 1px dashed var(--line); border-radius: var(--r); padding: 22px; text-align: center; color: var(--dim); margin-bottom: 16px; transition: border-color 0.2s, background 0.2s; }
+.drop { display: block; cursor: pointer; border: 1px dashed var(--line); border-radius: var(--r); padding: 22px; text-align: center; color: var(--dim); margin-bottom: 16px; transition: border-color 0.2s, background 0.2s; }
 .drop.is-over { border-color: var(--gold); background: rgba(200, 169, 106, 0.08); }
 
 /* ---- Modal & toast ---- */
@@ -185,3 +185,12 @@ button.tile:hover { border-color: var(--gold); }
   .grid2, .grid3 { grid-template-columns: 1fr; }
   .tbl .hide-sm { display: none; }
 }
+
+/* ---- Language editing ---- */
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.seg[hidden] { display: none; }
+.seg button { border: 0; background: none; padding: 9px 16px; font-size: 0.9rem; color: var(--dim); }
+.seg button.is-on { background: var(--gold); color: var(--ink); font-weight: 500; }
+.lg { font-style: normal; font-size: 0.6rem; letter-spacing: 0.1em; padding: 1px 6px; border-radius: 4px; background: rgba(200, 169, 106, 0.18); color: var(--gold-2); margin-inline-start: 6px; }
+.ref { color: var(--dim); opacity: 0.8; }
+textarea[dir="rtl"], input[dir="rtl"] { font-size: 1.05rem; }

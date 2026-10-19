@@ -39,8 +39,29 @@
   /* -------------------------------------------------------------- state */
   const S = {
     gh: null, user: "", content: null, published: null, baseSha: null,
-    view: "dashboard", media: null, thumbs: {}, ui: { pq: "", pcat: "all" }, busy: false
+    view: "dashboard", media: null, thumbs: {}, ui: { pq: "", pcat: "all" }, busy: false,
+    lang: (() => { try { return sessionStorage.getItem("angelico.admin.lang") === "ar" ? "ar" : "en"; } catch (e) { return "en"; } })()
   };
+  // A text field is a plain string (English) or { en, ar }.
+  const L = (v, lang = S.lang) => (v && typeof v === "object" ? (v[lang] || v.en || "") : (v ?? ""));
+  const lval = (v) => (v && typeof v === "object" ? (v[S.lang] ?? "") : (S.lang === "en" ? (v ?? "") : ""));
+  const hasAr = (v) => !!(v && typeof v === "object" && String(v.ar || "").trim());
+  function lset(path, text) {
+    let cur = get(S.content, path);
+    if (cur == null || typeof cur !== "object") cur = { en: typeof cur === "string" ? cur : "", ar: "" };
+    cur[S.lang] = text;
+    set(S.content, path, cur);
+  }
+  const pair = (en = "", ar = "") => ({ en, ar });
+  function normalize(c) {
+    c.ui = c.ui || {};
+    c.settings = c.settings || {};
+    if (c.settings.arabicEnabled == null) c.settings.arabicEnabled = true;
+    if (!c.settings.defaultLang) c.settings.defaultLang = "en";
+    c.settings.currency = c.settings.currency || {};
+    if (!c.settings.currency.localeAr) c.settings.currency.localeAr = "ar-u-nu-latn";
+    return c;
+  }
   const C = () => S.content;
   const pubStr = () => JSON.stringify(S.published);
   const isDirty = () => !!S.content && JSON.stringify(S.content) !== pubStr();
@@ -132,11 +153,11 @@
     }
     S.gh = gh;
     S.baseSha = file.sha;
-    S.published = JSON.parse(file.text);
+    S.published = normalize(JSON.parse(file.text));
     S.content = clone(S.published);
     try {
       const draft = JSON.parse(localStorage.getItem(KEYS.draft) || "null");
-      if (draft && JSON.stringify(draft) !== pubStr() && confirm("You have unpublished changes saved in this browser from an earlier session.\n\nOK restores them. Cancel loads the published version.")) S.content = draft;
+      if (draft && JSON.stringify(draft) !== pubStr() && confirm("You have unpublished changes saved in this browser from an earlier session.\n\nOK restores them. Cancel loads the published version.")) S.content = normalize(draft);
       else if (draft && JSON.stringify(draft) !== pubStr()) localStorage.removeItem(KEYS.draft);
     } catch (e) { /* ignore broken draft */ }
     S.media = null;
@@ -168,8 +189,14 @@
     $("#viewTitle").textContent = NAV.find((n) => n[0] === S.view)?.[1] || "Dashboard";
   }
 
+  function syncLang() {
+    $$("#langSeg button").forEach((b) => b.classList.toggle("is-on", b.dataset.l === S.lang));
+    $("#langSeg").hidden = !S.content || S.content.settings?.arabicEnabled === false;
+  }
+
   function refreshBar() {
     if (!S.content) return;
+    syncLang();
     const d = isDirty();
     const b = $("#statusBadge");
     b.textContent = d ? "Unpublished changes" : "Published";
@@ -208,10 +235,13 @@
     return `../${p}`;
   }
 
-  function fld({ label, path, type = "text", options, hint, rows = 3, ph = "", wide, keep }) {
-    const v = get(C(), path);
+  function fld({ label, path, type = "text", options, hint, rows = 3, ph = "", wide, keep, loc }) {
+    const raw = get(C(), path);
+    const localized = (type === "text" || type === "textarea") && loc !== false;
+    const v = localized ? lval(raw) : raw;
     const cls = `field${wide ? " wide" : ""}`;
-    const d = `data-path="${esc(path)}"`;
+    const d = `data-path="${esc(path)}"${localized ? ' data-loc="1"' : ""}${localized && S.lang === "ar" ? ' dir="rtl"' : ""}`;
+    const ref = localized && S.lang === "ar" ? `<small class="ref" dir="ltr">EN: ${esc(L(raw, "en")) || "(empty)"}</small>` : "";
     if (type === "check") {
       return `<div class="${cls}"><label class="switch"><input type="checkbox" ${d} data-type="check" ${v ? "checked" : ""} /> ${esc(label)}</label>${hint ? `<small>${hint}</small>` : ""}</div>`;
     }
@@ -231,7 +261,7 @@
           <button type="button" class="btn btn--sm" data-act="clear-img" data-path="${esc(path)}">Remove</button></div>
         </div></div>`;
     } else ctl = `<input type="${type === "email" ? "email" : "text"}" ${d} value="${esc(v)}" placeholder="${esc(ph)}" />`;
-    return `<label class="${cls}"><span>${esc(label)}</span>${ctl}${hint ? `<small>${hint}</small>` : ""}</label>`;
+    return `<label class="${cls}"><span>${esc(label)}${localized ? ` <i class="lg">${S.lang.toUpperCase()}</i>` : ""}</span>${ctl}${ref}${hint ? `<small>${hint}</small>` : ""}</label>`;
   }
 
   const sectionToggle = (key) => `<label class="switch"><input type="checkbox" data-path="sections.${key}" data-type="check" ${C().sections[key] !== false ? "checked" : ""} /> Show on site</label>`;
@@ -246,7 +276,7 @@
     const t = el.dataset.type;
     if (t === "check") v = el.checked;
     else if (t === "number") v = v === "" ? "" : Number(v);
-    set(C(), path, v);
+    if (el.dataset.loc) lset(path, v); else set(C(), path, v);
     if (t === "color") { const code = el.parentElement.querySelector("code"); if (code) code.textContent = v; }
     if (t === "image") refreshThumb(el);
     touch();
@@ -266,7 +296,7 @@
 
   function strList(path, { addLabel = "Add", ph = "" } = {}) {
     const arr = get(C(), path) || [];
-    return `${arr.map((_, i) => `<div class="strrow"><input type="text" data-path="${esc(path)}.${i}" value="${esc(arr[i])}" placeholder="${esc(ph)}" />
+    return `${arr.map((_, i) => `<div class="strrow"><input type="text" data-path="${esc(path)}.${i}" data-loc="1" ${S.lang === "ar" ? 'dir="rtl"' : ""} value="${esc(lval(arr[i]))}" placeholder="${esc(S.lang === "ar" ? L(arr[i], "en") : ph)}" />
       <button class="icon" data-act="move" data-path="${esc(path)}" data-i="${i}" data-d="-1" title="Move up" ${i === 0 ? "disabled" : ""}>&#8593;</button>
       <button class="icon" data-act="move" data-path="${esc(path)}" data-i="${i}" data-d="1" title="Move down" ${i === arr.length - 1 ? "disabled" : ""}>&#8595;</button>
       <button class="icon icon--danger" data-act="del" data-path="${esc(path)}" data-i="${i}" title="Remove">&#10005;</button></div>`).join("")}
@@ -277,7 +307,7 @@
     const arr = get(C(), path) || [];
     return `${arr.map((it, i) => `
       <details class="item">
-        <summary><span class="idx">${String(i + 1).padStart(2, "0")}</span><span class="ttl">${esc(it[titleKey] || `${noun} ${i + 1}`)}</span>
+        <summary><span class="idx">${String(i + 1).padStart(2, "0")}</span><span class="ttl">${esc(L(it[titleKey]) || `${noun} ${i + 1}`)}</span>
           <button class="icon" data-act="move" data-path="${esc(path)}" data-i="${i}" data-d="-1" title="Move up" ${i === 0 ? "disabled" : ""}>&#8593;</button>
           <button class="icon" data-act="move" data-path="${esc(path)}" data-i="${i}" data-d="1" title="Move down" ${i === arr.length - 1 ? "disabled" : ""}>&#8595;</button>
           ${fixed ? "" : `<button class="icon icon--danger" data-act="del" data-path="${esc(path)}" data-i="${i}" title="Remove">&#10005;</button>`}</summary>
@@ -287,15 +317,15 @@
   }
 
   const NEW = {
-    string: () => "",
-    product: () => ({ id: uid("p"), name: "New product", note: "", price: 0, category: C().shop.categories[0]?.id || "", tag: "", image: "", alt: "", visible: true, soldOut: false }),
-    collection: () => ({ id: uid("c"), title: "New collection", text: "", image: "", alt: "", visible: true }),
-    category: () => ({ id: uid("cat"), label: "New category" }),
-    stat: () => ({ value: 0, label: "Label" }),
-    step: () => ({ title: "New step", text: "" }),
-    navlink: () => ({ label: "New link", href: "#" }),
-    column: () => ({ title: "New column", links: [] }),
-    link: () => ({ label: "Label", url: "" })
+    string: () => pair(),
+    product: () => ({ id: uid("p"), name: pair("New product"), note: pair(), price: 0, category: C().shop.categories[0]?.id || "", tag: pair(), image: "", alt: pair(), visible: true, soldOut: false }),
+    collection: () => ({ id: uid("c"), title: pair("New collection"), text: pair(), image: "", alt: pair(), visible: true }),
+    category: () => ({ id: uid("cat"), label: pair("New category") }),
+    stat: () => ({ value: 0, label: pair("Label") }),
+    step: () => ({ title: pair("New step"), text: pair() }),
+    navlink: () => ({ label: pair("New link"), href: "#" }),
+    column: () => ({ title: pair("New column"), links: [] }),
+    link: () => ({ label: pair("Label"), url: "" })
   };
 
   /* -------------------------------------------------------------- views */
@@ -304,6 +334,13 @@
     try { return new Intl.NumberFormat(cur.locale || "en-US", { style: "currency", currency: cur.code || "USD", maximumFractionDigits: 0 }).format(Number(n) || 0); } catch (e) { return String(n); }
   };
 
+  const UI_KEYS = [
+    ["all", "Filter: all"], ["bag", "Bag button"], ["addedToBag", "Added to bag message", "Use {name} where the product name goes."],
+    ["soldOut", "Sold out label"], ["priceOnRequest", "Price on request"],
+    ["formName", "Form: name"], ["formEmail", "Form: email"], ["formInterest", "Form: interest"], ["formDate", "Form: preferred date"],
+    ["formInvalid", "Form: invalid input"], ["formSending", "Form: sending"], ["formFailed", "Form: failed"], ["formNotConnected", "Form: not connected"],
+    ["emailSubject", "Email subject for requests"], ["langSwitch", "Language button text", "EN is shown on the English page (the Arabic word), AR on the Arabic page."]
+  ];
   const VIEWS = {};
   const AFTER = {};
 
@@ -313,18 +350,20 @@
     const prods = c.shop.products;
     const changed = changedSections();
     const warns = healthChecks();
+    const cov = coverage();
     return `
       <p class="lead">Edit anything on the site from the menu. Changes stay as a draft in this browser until you press <b>Publish</b>, which saves them to GitHub and updates the live site within a minute or two.</p>
       <div class="stats">
         <div class="stat"><b>${prods.filter((p) => p.visible !== false).length}</b><span>Products live (${prods.length} total)</span></div>
         <div class="stat"><b>${c.collections.items.filter((p) => p.visible !== false).length}</b><span>Wardrobe collections</span></div>
         <div class="stat"><b>${prods.filter((p) => p.soldOut).length}</b><span>Sold out</span></div>
-        <div class="stat"><b>${changed.length}</b><span>Sections changed</span></div>
+        <div class="stat"><b>${cov.pct}%</b><span>Arabic translated</span></div>
       </div>
       <div class="grid2" style="align-items:start">
         ${card("Status", `<ul class="checks">
           <li><span class="dot ${changed.length ? "dot--warn" : ""}"></span><span>${changed.length ? `Unpublished changes in: <b>${changed.map(esc).join(", ")}</b>` : "Everything you see here is live."}</span></li>
           <li id="buildStatus"><span class="dot dot--warn"></span><span class="muted">Checking site deployment...</span></li>
+          ${c.settings.arabicEnabled !== false ? `<li><span class="dot ${cov.missing ? "dot--warn" : ""}"></span><span>${cov.missing ? `<b>${cov.missing}</b> text field${cov.missing > 1 ? "s still need" : " still needs"} Arabic. <button class="linkbtn" style="color:var(--gold-2)" data-act="lang" data-l="ar">Edit in Arabic</button>` : "Everything is translated to Arabic."}</span></li>` : ""}
           ${warns.map((w) => `<li><span class="dot dot--warn"></span><span>${w}</span></li>`).join("") || `<li><span class="dot"></span><span>No problems found.</span></li>`}
         </ul>`)}
         ${card("Quick actions", `<div class="row" style="gap:10px">
@@ -368,6 +407,19 @@
     return w;
   }
 
+  function coverage() {
+    let total = 0, done = 0;
+    const walk = (o) => {
+      if (Array.isArray(o)) return o.forEach(walk);
+      if (!o || typeof o !== "object") return;
+      if (typeof o.en === "string" && "ar" in o) { if (o.en.trim()) { total++; if (String(o.ar || "").trim()) done++; } return; }
+      Object.values(o).forEach(walk);
+    };
+    const c = { ...C(), hero: { ...C().hero } }; delete c.settings; delete c.hero.accent; // the accent word is optional
+    walk(c); walk(C().settings.siteTitle); walk(C().settings.description);
+    return { total, done, missing: total - done, pct: total ? Math.round((done / total) * 100) : 100 };
+  }
+
   function changedSections() {
     const out = [];
     const keys = new Set([...Object.keys(C()), ...Object.keys(S.published)]);
@@ -380,15 +432,15 @@
     const sh = C().shop;
     const { pq, pcat } = S.ui;
     const q = pq.trim().toLowerCase();
-    const rows = sh.products.map((p, i) => ({ p, i })).filter(({ p }) => (pcat === "all" || p.category === pcat) && (!q || `${p.name} ${p.note} ${p.tag}`.toLowerCase().includes(q)));
+    const rows = sh.products.map((p, i) => ({ p, i })).filter(({ p }) => (pcat === "all" || p.category === pcat) && (!q || [p.name, p.note, p.tag].map((x) => `${L(x, "en")} ${L(x, "ar")}`).join(" ").toLowerCase().includes(q)));
     const canMove = !q && pcat === "all";
-    const catLabel = (id) => sh.categories.find((c) => c.id === id)?.label || `<span class="pill pill--bad">No category</span>`;
+    const catLabel = (id) => { const c = sh.categories.find((x) => x.id === id); return c ? esc(L(c.label)) : `<span class="pill pill--bad">No category</span>`; };
     return `
       <div class="tools">
         <input type="search" id="pq" placeholder="Search products" value="${esc(pq)}" />
         <div class="chips">
           <button class="chip ${pcat === "all" ? "is-on" : ""}" data-act="pcat" data-id="all">All</button>
-          ${sh.categories.map((c) => `<button class="chip ${pcat === c.id ? "is-on" : ""}" data-act="pcat" data-id="${esc(c.id)}">${esc(c.label)}</button>`).join("")}
+          ${sh.categories.map((c) => `<button class="chip ${pcat === c.id ? "is-on" : ""}" data-act="pcat" data-id="${esc(c.id)}">${esc(L(c.label))}</button>`).join("")}
         </div>
         <button class="btn btn--gold" style="margin-left:auto" data-act="new-product">+ New product</button>
       </div>
@@ -396,10 +448,10 @@
         ${rows.length ? `<table class="tbl"><thead><tr><th></th><th>Product</th><th class="hide-sm">Category</th><th>Price</th><th class="hide-sm">Status</th><th></th></tr></thead><tbody>
           ${rows.map(({ p, i }) => `<tr class="${p.visible === false ? "is-off" : ""}">
             <td style="width:64px"><img class="thumb" src="${esc(imgSrc(p.image))}" alt="" ${p.image ? "" : "hidden"} /></td>
-            <td><div class="name">${esc(p.name)}</div><small>${esc(p.note)}</small></td>
+            <td><div class="name">${esc(L(p.name))}</div><small>${esc(L(p.note))}</small></td>
             <td class="hide-sm">${catLabel(p.category)}</td>
             <td>${Number(p.price) > 0 ? esc(fmtPrice(p.price)) : `<span class="muted">On request</span>`}</td>
-            <td class="hide-sm">${p.visible === false ? `<span class="pill">Hidden</span> ` : ""}${p.soldOut ? `<span class="pill pill--bad">Sold out</span> ` : ""}${p.tag ? `<span class="pill">${esc(p.tag)}</span>` : ""}</td>
+            <td class="hide-sm">${p.visible === false ? `<span class="pill">Hidden</span> ` : ""}${p.soldOut ? `<span class="pill pill--bad">Sold out</span> ` : ""}${L(p.tag) ? `<span class="pill">${esc(L(p.tag))}</span>` : ""}${S.lang === "ar" && !hasAr(p.name) ? ` <span class="pill pill--bad">Needs Arabic</span>` : ""}</td>
             <td class="acts">
               <button class="icon" data-act="edit" data-kind="product" data-i="${i}" title="Edit">&#9998;</button>
               <button class="icon" data-act="toggle" data-path="shop.products" data-i="${i}" data-key="visible" title="${p.visible === false ? "Show on site" : "Hide from site"}">${p.visible === false ? "&#9711;" : "&#9673;"}</button>
@@ -415,7 +467,7 @@
           ${fld({ label: "Add to bag button text", path: "shop.addLabel" })}</div>`, { right: sectionToggle("shop") })}
       ${card("Categories", `<p class="muted" style="margin-top:0">These become the filter buttons above the shop. A category only shows on the site when at least one visible product uses it.</p>
         ${itemList("shop.categories", { newKey: "category", titleKey: "label", addLabel: "Add category", noun: "Category", fields: [
-          { key: "label", label: "Label shown on site" }, { key: "id", label: "Internal id", hint: "Lowercase letters. Products point to this id, so change it with care." }] })}`)}`;
+          { key: "label", label: "Label shown on site" }, { key: "id", label: "Internal id", loc: false, hint: "Lowercase letters. Products point to this id, so change it with care." }] })}`)}`;
   };
 
   /* Collections */
@@ -428,8 +480,8 @@
         ${c.items.length ? `<table class="tbl"><thead><tr><th></th><th>Collection</th><th class="hide-sm">Status</th><th></th></tr></thead><tbody>
           ${c.items.map((p, i) => `<tr class="${p.visible === false ? "is-off" : ""}">
             <td style="width:64px"><img class="thumb" src="${esc(imgSrc(p.image))}" alt="" ${p.image ? "" : "hidden"} /></td>
-            <td><div class="name">${esc(p.title)}</div><small>${esc(p.text)}</small></td>
-            <td class="hide-sm">${p.visible === false ? `<span class="pill">Hidden</span>` : `<span class="pill">Visible</span>`}</td>
+            <td><div class="name">${esc(L(p.title))}</div><small>${esc(L(p.text))}</small></td>
+            <td class="hide-sm">${p.visible === false ? `<span class="pill">Hidden</span>` : `<span class="pill">Visible</span>`}${S.lang === "ar" && !hasAr(p.title) ? ` <span class="pill pill--bad">Needs Arabic</span>` : ""}</td>
             <td class="acts">
               <button class="icon" data-act="edit" data-kind="collection" data-i="${i}" title="Edit">&#9998;</button>
               <button class="icon" data-act="toggle" data-path="collections.items" data-i="${i}" data-key="visible" title="Show or hide">${p.visible === false ? "&#9711;" : "&#9673;"}</button>
@@ -446,7 +498,7 @@
     ${card("Headline", `<div class="grid2">
       ${fld({ label: "Small heading", path: "hero.eyebrow" })}${fld({ label: "Scroll hint", path: "hero.scrollHint" })}
       ${fld({ label: "Headline line 1", path: "hero.line1" })}
-      ${fld({ label: "Headline line 2 italic word", path: "hero.accent", hint: "Shown in gold italics before line 2. Leave empty for none." })}
+      ${fld({ label: "Headline line 2 accent word", path: "hero.accent", hint: "Shown in gold before line 2. Leave empty for none, which is normal for Arabic." })}
       ${fld({ label: "Headline line 2", path: "hero.line2" })}
       ${fld({ label: "Large background word", path: "hero.giantText" })}</div>`, { sub: "The first screen. The man is dressed as visitors scroll." })}
     ${card("The four dressing steps", `<p class="muted" style="margin-top:0">These captions appear one by one as the suit goes on. There are always four, matching the animation.</p>
@@ -454,7 +506,7 @@
         { key: "num", label: "Numeral" }, { key: "title", label: "Title" }, { key: "text", label: "Text", type: "textarea", wide: true }] })}`)}
     ${card("Hero video", `<div class="grid2">
       ${fld({ label: "Use the video frames when available", path: "hero.video.enabled", type: "check", hint: "Turn off to always show the illustrated figure." })}
-      ${fld({ label: "Frames manifest path", path: "hero.video.manifest", hint: "Created by scripts/extract-frames.sh. Leave as is." })}</div>`)}`;
+      ${fld({ label: "Frames manifest path", path: "hero.video.manifest", loc: false, hint: "Created by scripts/extract-frames.sh. Leave as is." })}</div>`)}`;
 
   /* Story */
   VIEWS.story = () => `
@@ -484,14 +536,14 @@
   /* Navigation and footer */
   VIEWS.navfooter = () => `
     ${card("Top navigation", itemList("nav", { newKey: "navlink", titleKey: "label", addLabel: "Add link", noun: "Link", fields: [
-      { key: "label", label: "Label" }, { key: "href", label: "Link", hint: "Use #collections, #shop and so on to scroll to a section, or a full web address." }] }))}
+      { key: "label", label: "Label" }, { key: "href", label: "Link", loc: false, hint: "Use #collections, #shop and so on to scroll to a section, or a full web address." }] }))}
     ${card("Footer columns", C().footer.columns.map((col, i) => `
       <details class="item"><summary><span class="idx">${String(i + 1).padStart(2, "0")}</span><span class="ttl">${esc(col.title || `Column ${i + 1}`)}</span>
         <button class="icon" data-act="move" data-path="footer.columns" data-i="${i}" data-d="-1" ${i === 0 ? "disabled" : ""}>&#8593;</button>
         <button class="icon" data-act="move" data-path="footer.columns" data-i="${i}" data-d="1" ${i === C().footer.columns.length - 1 ? "disabled" : ""}>&#8595;</button>
         <button class="icon icon--danger" data-act="del" data-path="footer.columns" data-i="${i}">&#10005;</button></summary>
         <div class="item__body">${fld({ label: "Column title", path: `footer.columns.${i}.title` })}
-          ${itemList(`footer.columns.${i}.links`, { newKey: "link", titleKey: "label", addLabel: "Add link", noun: "Link", fields: [{ key: "label", label: "Text" }, { key: "url", label: "Link", hint: "Leave empty to show plain text." }] })}</div></details>`).join("") +
+          ${itemList(`footer.columns.${i}.links`, { newKey: "link", titleKey: "label", addLabel: "Add link", noun: "Link", fields: [{ key: "label", label: "Text" }, { key: "url", label: "Link", loc: false, hint: "Leave empty to show plain text." }] })}</div></details>`).join("") +
       `<button class="btn btn--sm" data-act="add" data-path="footer.columns" data-new="column">+ Add column</button>`)}
     ${card("Legal line", fld({ label: "Text", path: "footer.legal", hint: "Use {year} to insert the current year automatically." }))}`;
 
@@ -504,12 +556,17 @@
       ${fld({ label: "Logo mark", path: "settings.logos.mark", type: "image", keep: true })}
       ${fld({ label: "Wordmark", path: "settings.logos.wordmark", type: "image", keep: true })}
       ${fld({ label: "Full lockup", path: "settings.logos.lockup", type: "image", keep: true })}</div>`, { sub: "Use PNG with a transparent background for the best result on the dark theme." })}
+    ${card("Languages", `<div class="grid2">
+      ${fld({ label: "Offer the Arabic version", path: "settings.arabicEnabled", type: "check", hint: "Shows the language button and the right-to-left layout." })}
+      ${fld({ label: "Default language", path: "settings.defaultLang", type: "select", options: [["en", "English"], ["ar", "Arabic"]], hint: "Visitors who pick a language keep their choice. Otherwise Arabic browsers get Arabic." })}</div>`)}
     ${card("Currency", `<div class="grid2">
-      ${fld({ label: "Currency code", path: "settings.currency.code", hint: "USD, EUR, GBP, AED, SAR..." })}
-      ${fld({ label: "Number format locale", path: "settings.currency.locale", hint: "en-US, en-GB, fr-FR, ar-AE..." })}</div>`)}
+      ${fld({ label: "Number format locale (Arabic)", path: "settings.currency.localeAr", loc: false, hint: "ar-u-nu-latn keeps Western digits. Use ar-EG for Arabic-Indic digits." })}
+      ${fld({ label: "Currency code", path: "settings.currency.code", loc: false, hint: "USD, EUR, GBP, AED, SAR..." })}
+      ${fld({ label: "Number format locale (English)", path: "settings.currency.locale", loc: false, hint: "en-US, en-GB, fr-FR, ar-AE..." })}</div>`)}
+    ${card("Interface words", `<p class="muted" style="margin-top:0">Small labels used across the site. The language switch button shows the other language, so enter the text that appears on the English page under EN.</p><div class="grid2">${UI_KEYS.map(([k, l, h]) => fld({ label: l, path: `ui.${k}`, hint: h })).join("")}</div>`)}
     ${card("Appointment requests", `<div class="grid2">
       ${fld({ label: "Contact email", path: "settings.contactEmail", type: "email", hint: "Opens the visitor's email app with the request filled in. Simple and free." })}
-      ${fld({ label: "Form endpoint (optional)", path: "settings.formEndpoint", hint: "A Formspree or similar URL. When set, requests are sent there directly and the email option is ignored." })}</div>`)}
+      ${fld({ label: "Form endpoint (optional)", path: "settings.formEndpoint", loc: false, hint: "A Formspree or similar URL. When set, requests are sent there directly and the email option is ignored." })}</div>`)}
     ${card("Colors", `<div class="grid3">
       ${fld({ label: "Gold accent", path: "settings.theme.gold", type: "color" })}
       ${fld({ label: "Light gold", path: "settings.theme.goldLight", type: "color" })}
@@ -585,7 +642,7 @@
     product: () => ({ title: "Product", list: "shop.products", fields: [
       { key: "name", label: "Name", wide: true }, { key: "note", label: "Short description", wide: true },
       { key: "price", label: "Price", type: "number", hint: "0 shows Price on request." },
-      { key: "category", label: "Category", type: "select", options: C().shop.categories.map((c) => [c.id, c.label]) },
+      { key: "category", label: "Category", type: "select", options: C().shop.categories.map((c) => [c.id, L(c.label)]) },
       { key: "tag", label: "Badge (optional)", hint: "A small word on the photo, such as New or Signature." },
       { key: "image", label: "Photo", type: "image", wide: true },
       { key: "alt", label: "Photo description", hint: "For screen readers and search engines.", wide: true },
@@ -663,9 +720,9 @@
     const c = C(); const w = [];
     const ids = new Set(); const catIds = new Set(c.shop.categories.map((x) => x.id));
     c.shop.products.forEach((p) => {
-      if (!String(p.name).trim()) w.push("A product has no name.");
+      if (!String(L(p.name, "en")).trim()) w.push("A product has no English name.");
       if (ids.has(p.id)) w.push(`Duplicate product id "${p.id}".`); ids.add(p.id);
-      if (!catIds.has(p.category)) w.push(`"${p.name}" uses a category that does not exist.`);
+      if (!catIds.has(p.category)) w.push(`"${L(p.name)}" uses a category that does not exist.`);
     });
     if (c.hero.stages.length !== 4) w.push("The hero needs exactly four steps.");
     return w;
@@ -673,7 +730,8 @@
 
   function openPublish() {
     const changed = changedSections();
-    const warns = [...validate(), ...healthChecks().map((x) => x.replace(/<[^>]+>/g, ""))];
+    const cov = coverage();
+    const warns = [...validate(), ...healthChecks().map((x) => x.replace(/<[^>]+>/g, "")), ...(C().settings.arabicEnabled !== false && cov.missing ? [`${cov.missing} text field${cov.missing > 1 ? "s have" : " has"} no Arabic yet. Visitors will see English there.`] : [])];
     openModal("modal", `
       <div class="modal__head"><h2>Publish changes</h2><button class="icon" data-act="close" title="Close">&#10005;</button></div>
       <p style="margin-top:0">This saves your changes to <code>${esc(S.gh.owner)}/${esc(S.gh.repo)}</code> on <code>${esc(S.gh.branch)}</code>. The live site updates in about a minute or two.</p>
@@ -708,6 +766,12 @@
 
   /* ------------------------------------------------------------ actions */
   const ACTIONS = {
+    lang: (b) => {
+      S.lang = b.dataset.l === "ar" ? "ar" : "en";
+      try { sessionStorage.setItem("angelico.admin.lang", S.lang); } catch (e) { /* ignore */ }
+      if (S.view !== "dashboard" && location.hash !== `#/${S.view}`) location.hash = `#/${S.view}`;
+      syncLang(); rerender();
+    },
     close: () => closeModal("modal"),
     close2: () => closeModal("modal2"),
     disconnect,
@@ -715,7 +779,7 @@
     "do-publish": doPublish,
     preview: () => {
       try { localStorage.setItem(KEYS.draft, JSON.stringify(C())); } catch (e) { /* ignore */ }
-      window.open("../?preview=1", "_blank");
+      window.open(`../?preview=1&lang=${S.lang}`, "_blank");
     },
     discard: () => {
       if (!confirm("Discard all unpublished changes and go back to the live version?")) return;
@@ -733,7 +797,7 @@
     del: (b) => {
       const arr = get(C(), b.dataset.path); const i = +b.dataset.i; const it = arr[i];
       if (b.dataset.path === "shop.categories" && C().shop.products.some((p) => p.category === it.id)) { toast("That category is still used by products. Move them first.", true); return; }
-      const name = it?.name || it?.title || it?.label || (typeof it === "string" ? it : "this item");
+      const name = L(it?.name) || L(it?.title) || L(it?.label) || (typeof it === "string" ? it : "") || "this item";
       if (!confirm(`Delete "${name}"?`)) return;
       arr.splice(i, 1); touch(); rerender();
     },
@@ -741,7 +805,7 @@
     dup: (b) => {
       const arr = get(C(), b.dataset.path); const i = +b.dataset.i;
       const copy = clone(arr[i]); copy.id = uid(b.dataset.path.startsWith("shop") ? "p" : "c");
-      if (copy.name) copy.name += " copy"; if (copy.title) copy.title += " copy";
+      ["name", "title"].forEach((k) => { if (copy[k]) { if (typeof copy[k] === "object") { copy[k].en += " copy"; if (copy[k].ar) copy[k].ar += " (نسخة)"; } else copy[k] += " copy"; } });
       arr.splice(i + 1, 0, copy); touch(); rerender(); toast("Duplicated.");
     },
     toggle: (b) => { const it = get(C(), b.dataset.path)[+b.dataset.i]; it[b.dataset.key] = it[b.dataset.key] === false; touch(); rerender(); },
@@ -771,7 +835,7 @@
       if (isDirty() && !confirm("Restoring replaces your current draft. Continue?")) return;
       try {
         const f = await S.gh.getFile(CONTENT_PATH, b.dataset.sha);
-        S.content = JSON.parse(f.text); touch(); rerender(); toast("Version loaded as a draft. Review it, then publish.");
+        S.content = normalize(JSON.parse(f.text)); touch(); rerender(); toast("Version loaded as a draft. Review it, then publish.");
       } catch (e) { toast(e.message, true); }
     },
     export: () => {
@@ -802,7 +866,7 @@
       try {
         const data = JSON.parse(await t.files[0].text());
         if (!data.shop || !data.hero || !data.settings) throw new Error("This file is not an Angelico content backup.");
-        S.content = data; touch(); rerender(); toast("Backup loaded as a draft. Publish to apply it.");
+        S.content = normalize(data); touch(); rerender(); toast("Backup loaded as a draft. Publish to apply it.");
       } catch (err) { toast(err.message, true); }
       t.value = "";
     }

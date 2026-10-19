@@ -84,3 +84,20 @@ opens the real site showing your draft. **Discard changes** returns to the live 
 * The hero has exactly four dressing steps, matching the animation.
 * A product category only appears as a filter when a visible product uses it.
 * Appointment requests need a contact email or a form endpoint (Settings).
+
+## Arabic and English
+
+The site ships in English and Arabic. A language button in the top bar switches
+between them and remembers the visitor's choice. Arabic switches the whole page
+to right-to-left, including the hero, the sideways gallery and the layout.
+
+* Every text field in `content/site.json` is either a plain string (English) or
+  `{ "en": "...", "ar": "..." }`. Prices, images, links and colors are shared.
+* In `/admin/`, use the **EN / عربي** toggle in the top bar to choose which
+  language you are editing. The English text is shown under each Arabic field.
+  The dashboard shows how much is translated, and the product and collection
+  lists flag items that need Arabic.
+* Settings has a Languages card (turn Arabic on or off, pick the default) and an
+  Interface words card for small labels such as the bag button and form messages.
+* Arabic fonts (Amiri and Tajawal) load from Google Fonts only on the Arabic page.
+* `?lang=ar` or `?lang=en` forces a language, for example in a link.
