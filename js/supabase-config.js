@@ -13,6 +13,6 @@
   keeps using GitHub.
 */
 window.ANGELICO_SUPABASE = {
-  url: "",
-  anonKey: ""
+  url: "https://ietdvaxmupgxmjwncpga.supabase.co",
+  anonKey: "sb_publishable_Q-CBl4GeqbtFNojWXgqLsg_Ul8h1g7W"
 };

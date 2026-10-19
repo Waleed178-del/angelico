@@ -43,7 +43,7 @@ Only you should be able to create accounts.
 
 ### 5. Connect the site
 1. **Project Settings**, **API**.
-2. Copy the **Project URL** and the **anon public** key.
+2. Copy the **Project URL** and the **publishable** key (`sb_publishable_...`). The older **anon public** key (`eyJ...`) works too.
 3. Paste them into `js/supabase-config.js`:
    ```js
    window.ANGELICO_SUPABASE = {

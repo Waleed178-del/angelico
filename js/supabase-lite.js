@@ -76,9 +76,14 @@
     }
 
     /* ------------------------------------------------------ requests */
+    // New style publishable keys (sb_publishable_...) are not JWTs, so they travel only in the
+    // apikey header. A Bearer token is sent only for a real JWT: a signed in user's access token,
+    // or an old style anon key.
     headers(auth, extra) {
-      const token = auth && this.session ? this.session.access_token : this.anonKey;
-      return { apikey: this.anonKey, Authorization: `Bearer ${token}`, ...extra };
+      const base = { apikey: this.anonKey };
+      if (auth && this.session) base.Authorization = `Bearer ${this.session.access_token}`;
+      else if (/^eyJ/.test(this.anonKey || "")) base.Authorization = `Bearer ${this.anonKey}`;
+      return { ...base, ...extra };
     }
 
     // Low level call. body may be an object (sent as JSON) or bytes (with opts.contentType).

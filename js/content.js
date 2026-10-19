@@ -64,7 +64,7 @@
         const ctl = new AbortController();
         const timer = setTimeout(() => ctl.abort(), 7000);
         const res = await fetch(`${sb.url.replace(/\/+$/, "")}/rest/v1/site_content?key=eq.published&select=data`, {
-          headers: { apikey: sb.anonKey, Authorization: `Bearer ${sb.anonKey}` }, cache: "no-store", signal: ctl.signal
+          headers: sbHeaders(sb), cache: "no-store", signal: ctl.signal
         });
         clearTimeout(timer);
         if (res.ok) {
@@ -78,13 +78,16 @@
     return { data: await res.json(), preview: false };
   }
 
+  // New style publishable keys (sb_publishable_...) are not JWTs and go only in the apikey header.
+  const sbHeaders = (sb) => ({ apikey: sb.anonKey, ...(/^eyJ/.test(sb.anonKey) ? { Authorization: `Bearer ${sb.anonKey}` } : {}) });
+
   // Sends an appointment request to Supabase. Visitors may insert but never read.
   async function submitAppointment(row) {
     const sb = window.AngelicoSupabase?.configured?.() ? window.AngelicoSupabase.cfg() : null;
     if (!sb) throw new Error("Supabase is not configured");
     const res = await fetch(`${sb.url.replace(/\/+$/, "")}/rest/v1/appointments`, {
       method: "POST",
-      headers: { apikey: sb.anonKey, Authorization: `Bearer ${sb.anonKey}`, "Content-Type": "application/json", Prefer: "return=minimal" },
+      headers: { ...sbHeaders(sb), "Content-Type": "application/json", Prefer: "return=minimal" },
       body: JSON.stringify(row)
     });
     if (!res.ok) throw new Error(`Supabase returned ${res.status}`);
