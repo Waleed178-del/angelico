@@ -72,7 +72,17 @@
     }
     const payload = { name: f.name.value.trim(), email: f.email.value.trim(), interest: f.interest.value, date: f.date.value };
     const done = t(content.appointment?.success) || "Thank you. The atelier will contact you shortly.";
-    if (settings.formEndpoint) {
+    if (f.website && f.website.value) { msg.textContent = done; f.reset(); return; } // hidden field only bots fill in
+    if (AC.hasBackend()) {
+      msg.textContent = ui("formSending") || "Sending...";
+      try {
+        await AC.submitAppointment({ name: payload.name, email: payload.email, interest: payload.interest || null, preferred_date: payload.date || null, lang: AC.lang });
+        msg.textContent = done;
+        f.reset();
+      } catch (err) {
+        msg.textContent = ui("formFailed") || "We could not send your request. Please try again shortly.";
+      }
+    } else if (settings.formEndpoint) {
       msg.textContent = ui("formSending") || "Sending...";
       try {
         const res = await fetch(settings.formEndpoint, { method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify(payload) });
