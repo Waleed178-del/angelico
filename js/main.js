@@ -19,7 +19,12 @@
   }
   const content = loaded.data;
   window.AngelicoContent.render(content, { preview: loaded.preview });
+  const AC = window.AngelicoContent;
+  const rtl = AC.lang === "ar";
+  const t = AC.L;
+  const ui = (key, vars) => AC.ui(content, key, vars);
   const products = (content.shop?.products || []).filter((p) => p.visible !== false);
+  $(".nav__lang")?.addEventListener("click", () => AC.setLang(rtl ? "en" : "ar"));
   const grid = $("#grid");
 
   /* ---------------- Bag + toast ---------------- */
@@ -37,7 +42,7 @@
     if (!b) return;
     bag += 1;
     $(".nav__count").textContent = bag;
-    say(`${products[b.dataset.i].name} added`);
+    say(ui("addedToBag", { name: t(products[b.dataset.i].name) }) || "Added");
     if (hasGsap) gsap.fromTo(".nav__count", { scale: 1.8 }, { scale: 1, duration: 0.7, ease: "elastic.out(1, .4)" });
   });
 
@@ -62,28 +67,28 @@
     const msg = $(".form__msg", f);
     const settings = content.settings || {};
     if (!f.name.value.trim() || !/^\S+@\S+\.\S+$/.test(f.email.value)) {
-      msg.textContent = "Please share your name and a valid email.";
+      msg.textContent = ui("formInvalid") || "Please share your name and a valid email.";
       return;
     }
     const payload = { name: f.name.value.trim(), email: f.email.value.trim(), interest: f.interest.value, date: f.date.value };
-    const done = content.appointment?.success || "Thank you. The atelier will contact you shortly.";
+    const done = t(content.appointment?.success) || "Thank you. The atelier will contact you shortly.";
     if (settings.formEndpoint) {
-      msg.textContent = "Sending...";
+      msg.textContent = ui("formSending") || "Sending...";
       try {
         const res = await fetch(settings.formEndpoint, { method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify(payload) });
         if (!res.ok) throw new Error(String(res.status));
         msg.textContent = done;
         f.reset();
       } catch (err) {
-        msg.textContent = "We could not send your request. Please try again shortly.";
+        msg.textContent = ui("formFailed") || "We could not send your request. Please try again shortly.";
       }
     } else if (settings.contactEmail) {
       const body = `Name: ${payload.name}%0D%0AEmail: ${payload.email}%0D%0AInterest: ${payload.interest}%0D%0APreferred date: ${payload.date || "any"}`;
-      window.location.href = `mailto:${settings.contactEmail}?subject=${encodeURIComponent("Appointment request")}&body=${body}`;
+      window.location.href = `mailto:${settings.contactEmail}?subject=${encodeURIComponent(ui("emailSubject") || "Appointment request")}&body=${body}`;
       msg.textContent = done;
       f.reset();
     } else {
-      msg.textContent = "This form is not connected yet. Please contact the atelier directly.";
+      msg.textContent = ui("formNotConnected") || "This form is not connected yet. Please contact the atelier directly.";
     }
   });
 
@@ -102,6 +107,7 @@
     document.body.classList.remove("is-loading");
     $(".loader").remove();
     $$(".stat b").forEach((b) => (b.textContent = b.dataset.count));
+    if (rtl) requestAnimationFrame(() => { const pin = $(".collections__pin"); if (pin) pin.scrollLeft = pin.scrollWidth; });
     $$("a[href^='#']").forEach((a) => a.addEventListener("click", () => toggleMenu(false)));
     if (hasGsap) {
       gsap.set(".clip-shirt", { attr: { height: 660 } });
@@ -242,12 +248,15 @@
 
   gsap.set(".f-jacket-l", { x: -320, rotate: -10, opacity: 0, transformOrigin: "50% 0%" });
   gsap.set(".f-jacket-r", { x: 320, rotate: 10, opacity: 0, transformOrigin: "50% 0%" });
-  gsap.set(".hero__final", { y: 30 });
+  // Centre explicitly with GSAP. The CSS translate was being dropped once GSAP took over the transform.
+  gsap.set(".figure", { xPercent: -50 });
+  const narrow = window.innerWidth <= 640;
+  gsap.set(".hero__final", narrow ? { xPercent: rtl ? 50 : -50, yPercent: 0, y: 30 } : { xPercent: 0, yPercent: -50, y: 30 });
   gsap.set([".f-finish .btn", ".f-finish .square", ".f-finish .cuff"], { scale: 0 });
 
   heroTl
     .to(".hero__intro", { y: -80, opacity: 0, duration: 1 }, 0)
-    .to(".hero__giant", { xPercent: -8, duration: 10 }, 0)
+    .to(".hero__giant", { xPercent: rtl ? 8 : -8, duration: 10 }, 0)
     .fromTo(".figure", { scale: 1.12, yPercent: 6 }, { scale: 1, yPercent: 0, duration: 1.2 }, 0)
     .to(".hero__progress span", { scaleY: 1, duration: 10 }, 0)
     // I. shirt
@@ -264,7 +273,7 @@
     .to(".f-trace", { strokeDashoffset: 0, duration: 1.2 }, 7.6)
     .to(".f-trace", { opacity: 0, duration: 0.5 }, 9)
     // finale
-    .to(".figure", { scale: 0.86, yPercent: 8, x: () => (window.innerWidth > 640 ? window.innerWidth * 0.14 : 0), duration: 1 }, 9)
+    .to(".figure", { scale: 0.86, yPercent: 8, x: () => (window.innerWidth > 640 ? window.innerWidth * (rtl ? -0.33 : 0.33) : 0), duration: 1 }, 9)
     .to(".hero__glow", { scale: 1.6, opacity: 1, duration: 1 }, 9)
     .to(".hero__final", { opacity: 1, y: 0, duration: 0.8 }, 9.2)
     .set({}, {}, 10);
@@ -289,8 +298,9 @@
   if (!$(".collections").hidden) {
     const track = $(".collections__track");
     const dist = () => Math.max(0, track.scrollWidth - window.innerWidth);
-    gsap.to(track, {
-      x: () => -dist(), ease: "none",
+    // Arabic: the first collection sits at the right end, so the track travels the other way.
+    gsap[rtl ? "fromTo" : "to"](track, ...(rtl ? [{ x: () => -dist() }] : []), {
+      x: () => (rtl ? 0 : -dist()), ease: "none",
       scrollTrigger: { trigger: ".collections", start: "top top", end: () => `+=${Math.max(1, dist())}`, scrub: 1, pin: ".collections__pin", invalidateOnRefresh: true, anticipatePin: 1 }
     });
     $$(".card").forEach((c, i) => gsap.from(c, {
