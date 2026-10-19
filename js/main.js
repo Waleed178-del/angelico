@@ -1,4 +1,4 @@
-(() => {
+(async () => {
   "use strict";
 
   const CFG = window.ANGELICO_CONFIG || {};
@@ -7,29 +7,20 @@
   const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const hasGsap = typeof window.gsap !== "undefined" && typeof window.ScrollTrigger !== "undefined";
 
-  $("#year").textContent = new Date().getFullYear();
-
-  /* ---------------- Products ---------------- */
-  const fmt = new Intl.NumberFormat(CFG.currency?.locale || "en-US", {
-    style: "currency", currency: CFG.currency?.code || "USD", maximumFractionDigits: 0
-  });
-
-  const products = [
-    { name: "The Sousi Three Piece", note: "Super 150s wool, midnight navy", price: 3200, cat: "suits", img: "suit", alt: "Navy three piece suit with gold tie", tag: "Signature" },
-    { name: "Peak Lapel Tuxedo", note: "Satin facings, waistcoat included", price: 3900, cat: "suits", img: "tuxedo", alt: "Navy tuxedo with black satin peak lapels", tag: "Evening" },
-    { name: "Double Breasted Overcoat", note: "Textured wool, navy", price: 4400, cat: "outerwear", img: "overcoat", alt: "Navy double breasted overcoat", tag: "New" },
-    { name: "Cap Toe Brogue Oxford", note: "Burnished brown calf, Goodyear welted", price: 980, cat: "foot", img: "footwear", alt: "Brown brogue oxford shoes" },
-    { name: "Seven Fold Silk Tie", note: "Gold grenadine weave", price: 260, cat: "acc", img: "tie", alt: "Gold silk grenadine tie", tag: "Atelier" },
-    { name: "Gold and Lapis Cufflinks", note: "18k gold vermeil", price: 680, cat: "acc", img: "cufflinks", alt: "Gold cufflink with navy stone on a white cuff" }
-  ];
-
+  /* ---------------- Content (edited from /admin) ---------------- */
+  let loaded;
+  try {
+    loaded = await window.AngelicoContent.load();
+  } catch (err) {
+    console.error("Angelico: could not load content", err);
+    const l = $(".loader__count");
+    if (l) l.textContent = "Could not load content";
+    return;
+  }
+  const content = loaded.data;
+  window.AngelicoContent.render(content, { preview: loaded.preview });
+  const products = (content.shop?.products || []).filter((p) => p.visible !== false);
   const grid = $("#grid");
-  grid.innerHTML = products.map((p, i) => `
-    <article class="product" data-cat="${p.cat}" data-cursor>
-      <div class="product__media">${p.tag ? `<span class="product__tag">${p.tag}</span>` : ""}<img src="assets/products/${p.img}.webp" alt="${p.alt}" width="900" height="1125" loading="lazy" decoding="async" />
-        <button class="product__add" data-i="${i}">Add to bag</button></div>
-      <div class="product__info"><div><h3>${p.name}</h3><p>${p.note}</p></div><span class="product__price">${fmt.format(p.price)}</span></div>
-    </article>`).join("");
 
   /* ---------------- Bag + toast ---------------- */
   let bag = 0;
@@ -65,16 +56,35 @@
   }));
 
   /* ---------------- Form ---------------- */
-  $(".form").addEventListener("submit", (e) => {
+  $(".form").addEventListener("submit", async (e) => {
     e.preventDefault();
     const f = e.currentTarget;
     const msg = $(".form__msg", f);
+    const settings = content.settings || {};
     if (!f.name.value.trim() || !/^\S+@\S+\.\S+$/.test(f.email.value)) {
       msg.textContent = "Please share your name and a valid email.";
       return;
     }
-    msg.textContent = `Thank you, ${f.name.value.trim()}. The atelier will contact you shortly.`;
-    f.reset();
+    const payload = { name: f.name.value.trim(), email: f.email.value.trim(), interest: f.interest.value, date: f.date.value };
+    const done = content.appointment?.success || "Thank you. The atelier will contact you shortly.";
+    if (settings.formEndpoint) {
+      msg.textContent = "Sending...";
+      try {
+        const res = await fetch(settings.formEndpoint, { method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify(payload) });
+        if (!res.ok) throw new Error(String(res.status));
+        msg.textContent = done;
+        f.reset();
+      } catch (err) {
+        msg.textContent = "We could not send your request. Please try again shortly.";
+      }
+    } else if (settings.contactEmail) {
+      const body = `Name: ${payload.name}%0D%0AEmail: ${payload.email}%0D%0AInterest: ${payload.interest}%0D%0APreferred date: ${payload.date || "any"}`;
+      window.location.href = `mailto:${settings.contactEmail}?subject=${encodeURIComponent("Appointment request")}&body=${body}`;
+      msg.textContent = done;
+      f.reset();
+    } else {
+      msg.textContent = "This form is not connected yet. Please contact the atelier directly.";
+    }
   });
 
   /* ---------------- Menu ---------------- */
@@ -200,8 +210,9 @@
       const img = frames[i];
       if (img.complete && img.naturalWidth) { draw(img); last = i; }
     };
-    if (CFG.sequence?.enabled) {
-      fetch(CFG.sequence.manifest).then((r) => r.json()).then((m) => {
+    const video = content.hero?.video || CFG.sequence || {};
+    if (video.enabled) {
+      fetch(video.manifest).then((r) => r.json()).then((m) => {
         for (let i = 1; i <= m.count; i++) {
           const img = new Image();
           img.src = `${m.path}${String(i).padStart(m.pad || 4, "0")}.${m.ext || "webp"}`;
@@ -260,6 +271,7 @@
 
   const windows = [[1, 3], [3.2, 5], [5, 7.3], [7.4, 9]];
   stages.forEach((s, i) => {
+    if (!windows[i]) return;
     const [a, b] = windows[i];
     heroTl
       .fromTo(s, { autoAlpha: 0, y: 40 }, { autoAlpha: 1, y: 0, duration: 0.4, ease: "power2.out" }, a)
@@ -268,22 +280,24 @@
 
   /* ---------------- Marquee ---------------- */
   const mq = gsap.to(".marquee__track", { xPercent: -50, duration: 28, ease: "none", repeat: -1 });
-  ScrollTrigger.create({
+  if (!$(".marquee").hidden) ScrollTrigger.create({
     trigger: ".marquee", start: "top bottom", end: "bottom top",
     onUpdate: (self) => gsap.to(mq, { timeScale: 1 + Math.abs(self.getVelocity()) / 400 * (self.direction), duration: 0.3, overwrite: true, onComplete: () => gsap.to(mq, { timeScale: 1, duration: 1 }) })
   });
 
   /* ---------------- Collections horizontal ---------------- */
-  const track = $(".collections__track");
-  const dist = () => Math.max(0, track.scrollWidth - window.innerWidth);
-  gsap.to(track, {
-    x: () => -dist(), ease: "none",
-    scrollTrigger: { trigger: ".collections", start: "top top", end: () => `+=${dist()}`, scrub: 1, pin: ".collections__pin", invalidateOnRefresh: true, anticipatePin: 1 }
-  });
-  $$(".card").forEach((c, i) => gsap.from(c, {
-    y: 80 + i * 10, opacity: 0, duration: 1, ease: "power3.out",
-    scrollTrigger: { trigger: ".collections", start: "top 70%" }
-  }));
+  if (!$(".collections").hidden) {
+    const track = $(".collections__track");
+    const dist = () => Math.max(0, track.scrollWidth - window.innerWidth);
+    gsap.to(track, {
+      x: () => -dist(), ease: "none",
+      scrollTrigger: { trigger: ".collections", start: "top top", end: () => `+=${Math.max(1, dist())}`, scrub: 1, pin: ".collections__pin", invalidateOnRefresh: true, anticipatePin: 1 }
+    });
+    $$(".card").forEach((c, i) => gsap.from(c, {
+      y: 80 + i * 10, opacity: 0, duration: 1, ease: "power3.out",
+      scrollTrigger: { trigger: ".collections", start: "top 70%" }
+    }));
+  }
 
   /* ---------------- Stats ---------------- */
   $$(".stat b").forEach((b) => {

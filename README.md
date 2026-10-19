@@ -14,10 +14,12 @@ A server is needed (not `file://`) once the video frame sequence is enabled.
 ## Structure
 
 ```
-index.html            page markup
+index.html            page skeleton, filled from content/site.json
+content/site.json     ALL editable content (the admin edits this file)
 css/style.css         design tokens (from the logo navy #2A3A4A) and layout
-js/config.js          hero sequence switch, store currency
+js/content.js         loads content/site.json and renders the page
 js/main.js            GSAP + ScrollTrigger + Lenis animations, shop logic
+admin/                the admin dashboard and CMS (no server needed)
 assets/brand/         logo extracted from the original artwork (transparent PNG)
 assets/products/      product photos (WebP, 900x1125)
 assets/sequence/      Kling video frames (generated, see KLING.md)
@@ -48,3 +50,37 @@ man putting on his suit by following `KLING.md`.
 
 Product names, prices (USD), atelier statistics and the appointment form
 are placeholders. The form does not submit anywhere yet.
+
+## Admin dashboard (CMS)
+
+Open `/admin/` on the live site, for example `https://waleed178-del.github.io/angelico/admin/`.
+
+It edits everything: products (add, edit, hide, mark sold out, reorder, duplicate,
+delete), Wardrobe collections, hero text, manifesto, scrolling words, atelier
+numbers and steps, quote, appointment form options, navigation, footer, logos,
+currency, colors, and the image library.
+
+### How it saves
+GitHub Pages has no server, so the admin saves by committing to this repository
+through the GitHub API. Press **Publish** and `content/site.json` (and any
+uploaded images) are committed to the branch GitHub Pages deploys, normally
+`gh-pages`. The live site updates in a minute or two. Every publish is a git
+commit, so any version can be restored from the dashboard.
+
+### Signing in
+1. GitHub, Settings, Developer settings, Fine-grained tokens, Generate new token.
+2. Repository access: only this repository.
+3. Permissions: Contents Read and write. Optionally Pages Read-only for deploy status.
+4. Paste the token on the admin sign-in screen. Leave "Remember me" off on shared computers.
+
+Only people GitHub lets write to the repository can publish. The `/admin/` page
+itself is public but does nothing without a valid token.
+
+### Drafts and preview
+Edits are saved as a draft in your browser until you publish. **Preview draft**
+opens the real site showing your draft. **Discard changes** returns to the live version.
+
+### Notes
+* The hero has exactly four dressing steps, matching the animation.
+* A product category only appears as a filter when a visible product uses it.
+* Appointment requests need a contact email or a form endpoint (Settings).

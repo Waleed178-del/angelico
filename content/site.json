@@ -1,0 +1,125 @@
+{
+  "version": 1,
+  "settings": {
+    "siteTitle": "Angelico | By Mhd Al Sousi",
+    "description": "Angelico by Mhd Al Sousi. Bespoke tailoring and luxury menswear.",
+    "currency": { "code": "USD", "locale": "en-US" },
+    "contactEmail": "",
+    "formEndpoint": "",
+    "logos": {
+      "mark": "assets/brand/logo-mark.png",
+      "wordmark": "assets/brand/logo-wordmark.png",
+      "lockup": "assets/brand/logo-lockup.png"
+    },
+    "theme": {
+      "gold": "#c8a96a",
+      "goldLight": "#e9d6a6",
+      "navy": "#2a3a4a",
+      "navyDark": "#121a24"
+    }
+  },
+  "nav": [
+    { "label": "Collections", "href": "#collections" },
+    { "label": "Atelier", "href": "#atelier" },
+    { "label": "Shop", "href": "#shop" },
+    { "label": "Appointment", "href": "#appointment" }
+  ],
+  "sections": {
+    "manifesto": true,
+    "marquee": true,
+    "collections": true,
+    "atelier": true,
+    "shop": true,
+    "quote": true,
+    "appointment": true
+  },
+  "hero": {
+    "eyebrow": "Maison de Tailleur",
+    "line1": "Dressed",
+    "accent": "in",
+    "line2": "intent.",
+    "scrollHint": "Scroll to dress",
+    "giantText": "ANGELICO",
+    "video": { "enabled": true, "manifest": "assets/sequence/manifest.json" },
+    "stages": [
+      { "num": "I", "title": "The Shirt", "text": "Two fold Egyptian cotton, hand set collar, mother of pearl buttons." },
+      { "num": "II", "title": "The Tie", "text": "Seven fold silk, cut on the bias so it falls with quiet weight." },
+      { "num": "III", "title": "The Jacket", "text": "Full floating canvas. Lapels drawn from the Angelico mark." },
+      { "num": "IV", "title": "The Finish", "text": "Horn buttons, a folded silk square. Nothing loud. Nothing missing." }
+    ]
+  },
+  "manifesto": {
+    "eyebrow": "The House",
+    "text": "A suit is not worn. It is inhabited. At Angelico every garment begins with the man who will carry it, his posture, his stride, the way he enters a room. We cut for that moment.",
+    "signName": "Mhd Al Sousi",
+    "signRole": "Founder & Master Tailor"
+  },
+  "marquee": {
+    "words": ["Bespoke", "Made to Measure", "Ceremonial", "Evening Wear"]
+  },
+  "collections": {
+    "eyebrow": "Collections",
+    "title": "The Wardrobe",
+    "items": [
+      { "id": "c1", "title": "Bespoke Suits", "text": "Cut from a pattern drafted for you alone.", "image": "assets/products/suit.webp", "alt": "Navy three piece bespoke suit with gold tie", "visible": true },
+      { "id": "c2", "title": "Evening & Tuxedo", "text": "Silk peak lapels for the hours after dark.", "image": "assets/products/tuxedo.webp", "alt": "Midnight navy tuxedo with peak satin lapels and bow tie", "visible": true },
+      { "id": "c3", "title": "Shirting", "text": "Sea island cotton, hand finished buttonholes.", "image": "assets/products/shirting.webp", "alt": "Crisp white dress shirt with gold silk tie", "visible": true },
+      { "id": "c4", "title": "Outerwear", "text": "Cashmere overcoats built to outlast seasons.", "image": "assets/products/overcoat.webp", "alt": "Navy double breasted wool overcoat with silk scarf", "visible": true },
+      { "id": "c5", "title": "Accessories", "text": "Cufflinks, silk ties, folded squares.", "image": "assets/products/accessories.webp", "alt": "Gold cufflink, silk tie and paisley pocket square", "visible": true },
+      { "id": "c6", "title": "Footwear", "text": "Goodyear welted oxfords in burnished calf.", "image": "assets/products/footwear.webp", "alt": "Brown brogue oxfords with navy trousers and patterned socks", "visible": true }
+    ]
+  },
+  "atelier": {
+    "eyebrow": "The Atelier",
+    "title": "From first measure to final press.",
+    "stats": [
+      { "value": 80, "label": "Hours of handwork per suit" },
+      { "value": 27, "label": "Measurements taken" },
+      { "value": 3, "label": "Fittings, minimum" },
+      { "value": 1, "label": "Pattern, yours alone" }
+    ],
+    "steps": [
+      { "title": "Consultation", "text": "We discuss occasion, lifestyle and the cloth that suits both. Over three hundred bunches from the finest mills." },
+      { "title": "Measurement", "text": "Every slope of the shoulder, every turn of the stance recorded and drafted into a personal paper pattern." },
+      { "title": "Fittings", "text": "A basted fitting, a forward fitting, a finished fitting. The garment learns your body in stages." },
+      { "title": "Delivery", "text": "Pressed by hand, presented in our garment carrier, and kept on file for every commission after." }
+    ]
+  },
+  "shop": {
+    "eyebrow": "Ready to Wear",
+    "title": "The Edit",
+    "addLabel": "Add to bag",
+    "categories": [
+      { "id": "suits", "label": "Suits" },
+      { "id": "outerwear", "label": "Outerwear" },
+      { "id": "foot", "label": "Footwear" },
+      { "id": "acc", "label": "Accessories" }
+    ],
+    "products": [
+      { "id": "p1", "name": "The Sousi Three Piece", "note": "Super 150s wool, midnight navy", "price": 3200, "category": "suits", "tag": "Signature", "image": "assets/products/suit.webp", "alt": "Navy three piece suit with gold tie", "visible": true, "soldOut": false },
+      { "id": "p2", "name": "Peak Lapel Tuxedo", "note": "Satin facings, waistcoat included", "price": 3900, "category": "suits", "tag": "Evening", "image": "assets/products/tuxedo.webp", "alt": "Navy tuxedo with black satin peak lapels", "visible": true, "soldOut": false },
+      { "id": "p3", "name": "Double Breasted Overcoat", "note": "Textured wool, navy", "price": 4400, "category": "outerwear", "tag": "New", "image": "assets/products/overcoat.webp", "alt": "Navy double breasted overcoat", "visible": true, "soldOut": false },
+      { "id": "p4", "name": "Cap Toe Brogue Oxford", "note": "Burnished brown calf, Goodyear welted", "price": 980, "category": "foot", "tag": "", "image": "assets/products/footwear.webp", "alt": "Brown brogue oxford shoes", "visible": true, "soldOut": false },
+      { "id": "p5", "name": "Seven Fold Silk Tie", "note": "Gold grenadine weave", "price": 260, "category": "acc", "tag": "Atelier", "image": "assets/products/tie.webp", "alt": "Gold silk grenadine tie", "visible": true, "soldOut": false },
+      { "id": "p6", "name": "Gold and Lapis Cufflinks", "note": "18k gold vermeil", "price": 680, "category": "acc", "tag": "", "image": "assets/products/cufflinks.webp", "alt": "Gold cufflink with navy stone on a white cuff", "visible": true, "soldOut": false }
+    ]
+  },
+  "quote": {
+    "text": "Elegance is the only beauty that never fades."
+  },
+  "appointment": {
+    "eyebrow": "Private Appointment",
+    "title": "Begin your commission.",
+    "button": "Request appointment",
+    "interests": ["Bespoke Suit", "Evening Wear", "Wedding", "Shirting"],
+    "success": "Thank you. The atelier will contact you shortly."
+  },
+  "footer": {
+    "columns": [
+      { "title": "Visit", "links": [{ "label": "By appointment only", "url": "" }] },
+      { "title": "Follow", "links": [{ "label": "Instagram", "url": "#" }, { "label": "Pinterest", "url": "#" }] },
+      { "title": "House", "links": [{ "label": "Atelier", "url": "#atelier" }, { "label": "Shop", "url": "#shop" }] }
+    ],
+    "legal": "© {year} Angelico by Mhd Al Sousi. All rights reserved."
+  }
+}
