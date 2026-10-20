@@ -184,6 +184,11 @@ button.tile:hover { border-color: var(--gold); }
   .bar { position: static; }
   .grid2, .grid3 { grid-template-columns: 1fr; }
   .tbl .hide-sm { display: none; }
+  /* Filter tags scroll sideways on small screens instead of wrapping into rows. */
+  .chips { flex-wrap: nowrap; overflow-x: auto; max-width: 100%; padding-bottom: 4px; scrollbar-width: none; }
+  .chips::-webkit-scrollbar { display: none; }
+  .chip { flex: none; white-space: nowrap; }
+  .tools > .chips { flex: 1 1 100%; }
 }
 
 /* ---- Language editing ---- */

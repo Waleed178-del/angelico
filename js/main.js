@@ -7,16 +7,30 @@
   const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const hasGsap = typeof window.gsap !== "undefined" && typeof window.ScrollTrigger !== "undefined";
 
+  /* ---------------- Loader ----------------
+     It is only on screen while real work happens: fetching the content and the
+     hero photos. The bar shows that progress, nothing is faked. */
+  const tour = window.AngelicoHeroTour;
+  const loaderBar = $(".loader__bar span");
+  const loaderShownAt = performance.now();
+  let contentDone = 0, imgDone = 0, imgTotal = tour ? Object.keys(tour.IMAGES).length : 0;
+  const setBar = () => { if (loaderBar) loaderBar.style.transform = `scaleX(${(contentDone + imgDone) / (1 + imgTotal)})`; };
+  if (tour) tour.onProgress((n, total) => { imgDone = n; imgTotal = total; setBar(); });
+  if (hasGsap && !reduced) gsap.to(".loader__mark", { clipPath: "inset(0% 0 0 0)", duration: 0.8, ease: "power3.inOut" });
+
   /* ---------------- Content (edited from /admin) ---------------- */
   let loaded;
   try {
     loaded = await window.AngelicoContent.load();
   } catch (err) {
     console.error("Angelico: could not load content", err);
-    const l = $(".loader__count");
-    if (l) l.textContent = "Could not load content";
+    const l = document.createElement("p");
+    l.className = "loader__msg";
+    l.textContent = "Could not load the page. Please refresh.";
+    $(".loader")?.appendChild(l);
     return;
   }
+  contentDone = 1; setBar();
   const content = loaded.data;
   window.AngelicoContent.render(content, { preview: loaded.preview });
   const AC = window.AngelicoContent;
@@ -112,12 +126,44 @@
   };
   burger.addEventListener("click", () => toggleMenu(burger.getAttribute("aria-expanded") !== "true"));
 
+  /* ---------------- Hero style ----------------
+     camera (default): virtual camera over the suit photos, see js/hero-tour.js
+     video: the Kling frame sequence      illustration: the drawn figure */
+  const hero = $("#hero");
+  const heroMode = content.hero?.mode || "camera";
+  let camera = null;
+  if (heroMode === "camera" && tour) {
+    hero.classList.add("has-camera");
+    camera = tour.create($(".hero__canvas"), { rtl });
+    tour.ready.then((imgs) => {
+      if (!imgs.suit) { hero.classList.remove("has-camera"); camera = null; return; } // photos failed: show the illustration
+      camera.size();
+    });
+  }
+
+  /* ---------------- Wardrobe: a horizontal scroller the visitor controls ---------------- */
+  const track = $(".collections__track");
+  const arrows = $$(".collections__nav button");
+  const syncArrows = () => {
+    const max = track.scrollWidth - track.clientWidth - 2;
+    const pos = Math.abs(track.scrollLeft); // negative in right to left pages
+    arrows.forEach((b) => { b.disabled = b.dataset.dir === "-1" ? pos <= 2 : pos >= max; });
+  };
+  arrows.forEach((b) => b.addEventListener("click", () => {
+    const card = $(".card", track);
+    const stepBy = card ? card.offsetWidth + parseFloat(getComputedStyle(track).columnGap || 24) : track.clientWidth * 0.8;
+    track.scrollBy({ left: Number(b.dataset.dir) * stepBy * (rtl ? -1 : 1), behavior: reduced ? "auto" : "smooth" });
+  }));
+  track.addEventListener("scroll", syncArrows, { passive: true });
+  window.addEventListener("resize", syncArrows);
+  syncArrows();
+
   /* ---------------- No animation path ---------------- */
   if (!hasGsap || reduced) {
     document.body.classList.remove("is-loading");
     $(".loader").remove();
     $$(".stat b").forEach((b) => (b.textContent = b.dataset.count));
-    if (rtl) requestAnimationFrame(() => { const pin = $(".collections__pin"); if (pin) pin.scrollLeft = pin.scrollWidth; });
+    if (camera) tour.ready.then(() => camera.render(0));
     $$("a[href^='#']").forEach((a) => a.addEventListener("click", () => toggleMenu(false)));
     if (hasGsap) {
       gsap.set(".clip-shirt", { attr: { height: 660 } });
@@ -135,7 +181,11 @@
   /* ---------------- Smooth scroll ---------------- */
   let lenis = null;
   if (window.Lenis) {
-    lenis = new Lenis({ duration: 1.25, easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)) });
+    lenis = new Lenis({
+      duration: 1.25, easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      // Sideways trackpad swipes over the Wardrobe row scroll the row, not the page.
+      virtualScroll: ({ deltaX, deltaY, event }) => !(Math.abs(deltaX) > Math.abs(deltaY) && event.target.closest?.(".collections__track"))
+    });
     lenis.stop();
     lenis.on("scroll", ScrollTrigger.update);
     gsap.ticker.add((t) => lenis.raf(t * 1000));
@@ -150,14 +200,23 @@
     lenis ? lenis.scrollTo(target, { duration: 1.8 }) : window.scrollTo({ top: target ? target.offsetTop : 0, behavior: "smooth" });
   }));
 
-  /* ---------------- Cursor + magnetic ---------------- */
+  /* ---------------- Cursor + magnetic ----------------
+     Only for a real mouse. It appears on the first mouse movement (so it never sits
+     stranded in a corner) and disappears as soon as a finger or pen is used. */
   const cursor = $(".cursor");
   if (window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
+    const root = document.documentElement;
     const dx = gsap.quickTo(".cursor__dot", "x", { duration: 0.15 });
     const dy = gsap.quickTo(".cursor__dot", "y", { duration: 0.15 });
     const rx = gsap.quickTo(".cursor__ring", "x", { duration: 0.55, ease: "power3" });
     const ry = gsap.quickTo(".cursor__ring", "y", { duration: 0.55, ease: "power3" });
-    window.addEventListener("pointermove", (e) => { dx(e.clientX); dy(e.clientY); rx(e.clientX); ry(e.clientY); });
+    window.addEventListener("pointermove", (e) => {
+      if (e.pointerType !== "mouse") { root.classList.remove("has-cursor"); return; }
+      if (!root.classList.contains("has-cursor")) { gsap.set([".cursor__dot", ".cursor__ring"], { x: e.clientX, y: e.clientY }); root.classList.add("has-cursor"); }
+      dx(e.clientX); dy(e.clientY); rx(e.clientX); ry(e.clientY);
+    });
+    window.addEventListener("pointerdown", (e) => { if (e.pointerType !== "mouse") root.classList.remove("has-cursor"); });
+    document.addEventListener("mouseleave", () => root.classList.remove("has-cursor"));
     document.addEventListener("pointerover", (e) => {
       cursor.classList.toggle("is-view", !!e.target.closest("[data-cursor]") && !e.target.closest("button"));
       cursor.classList.toggle("is-hover", !!e.target.closest("a, button, input, select"));
@@ -195,7 +254,6 @@
   });
 
   /* ---------------- Hero ---------------- */
-  const hero = $("#hero");
   const heroProgress = () => (heroTl && heroTl.scrollTrigger ? heroTl.scrollTrigger.progress : 0);
   let heroTl = null;
 
@@ -227,7 +285,7 @@
       if (img.complete && img.naturalWidth) { draw(img); last = i; }
     };
     const video = content.hero?.video || CFG.sequence || {};
-    if (video.enabled) {
+    if (heroMode === "video" && video.enabled) {
       fetch(video.manifest).then((r) => r.json()).then((m) => {
         for (let i = 1; i <= m.count; i++) {
           const img = new Image();
@@ -252,9 +310,10 @@
     scrollTrigger: {
       trigger: hero, start: "top top", end: "bottom bottom", scrub: 1,
       pin: ".hero__pin", pinSpacing: false, anticipatePin: 1, invalidateOnRefresh: true,
-      onUpdate: (self) => sequence.render(self.progress)
+      onUpdate: (self) => { if (camera) camera.render(self.progress); else sequence.render(self.progress); }
     }
   });
+  if (camera) tour.ready.then(() => camera.render(heroProgress()));
 
   gsap.set(".f-jacket-l", { x: -320, rotate: -10, opacity: 0, transformOrigin: "50% 0%" });
   gsap.set(".f-jacket-r", { x: 320, rotate: 10, opacity: 0, transformOrigin: "50% 0%" });
@@ -285,6 +344,7 @@
     // finale
     .to(".figure", { scale: 0.86, yPercent: 8, x: () => (window.innerWidth > 640 ? window.innerWidth * (rtl ? -0.33 : 0.33) : 0), duration: 1 }, 9)
     .to(".hero__glow", { scale: 1.6, opacity: 1, duration: 1 }, 9)
+    .to(".hero__shade", { opacity: 1, duration: 0.8 }, 9)
     .to(".hero__final", { opacity: 1, y: 0, duration: 0.8 }, 9.2)
     .set({}, {}, 10);
 
@@ -304,19 +364,12 @@
     onUpdate: (self) => gsap.to(mq, { timeScale: 1 + Math.abs(self.getVelocity()) / 400 * (self.direction), duration: 0.3, overwrite: true, onComplete: () => gsap.to(mq, { timeScale: 1, duration: 1 }) })
   });
 
-  /* ---------------- Collections horizontal ---------------- */
+  /* ---------------- Collections: entrance only, the visitor scrolls the row ---------------- */
   if (!$(".collections").hidden) {
-    const track = $(".collections__track");
-    const dist = () => Math.max(0, track.scrollWidth - window.innerWidth);
-    // Arabic: the first collection sits at the right end, so the track travels the other way.
-    gsap[rtl ? "fromTo" : "to"](track, ...(rtl ? [{ x: () => -dist() }] : []), {
-      x: () => (rtl ? 0 : -dist()), ease: "none",
-      scrollTrigger: { trigger: ".collections", start: "top top", end: () => `+=${Math.max(1, dist())}`, scrub: 1, pin: ".collections__pin", invalidateOnRefresh: true, anticipatePin: 1 }
+    gsap.from(".card", {
+      y: 60, opacity: 0, duration: 1, stagger: 0.08, ease: "power3.out",
+      scrollTrigger: { trigger: ".collections", start: "top 75%", once: true }
     });
-    $$(".card").forEach((c, i) => gsap.from(c, {
-      y: 80 + i * 10, opacity: 0, duration: 1, ease: "power3.out",
-      scrollTrigger: { trigger: ".collections", start: "top 70%" }
-    }));
   }
 
   /* ---------------- Stats ---------------- */
@@ -370,35 +423,30 @@
     scrollTrigger: { trigger: ".footer", start: "top 85%" }
   });
 
-  /* ---------------- Loader ---------------- */
-  const count = { v: 0 };
+  /* ---------------- Loader exit ----------------
+     Leave as soon as the content, fonts and hero photos are ready (never longer than
+     8 seconds on a slow connection), with a short floor so the logo does not flash. */
   const intro = gsap.timeline({ paused: true })
     .from(".hero__title span", { yPercent: 100, opacity: 0, stagger: 0.12, duration: 1.3, ease: "power4.out" })
     .from(".hero__intro .eyebrow, .hero__scroll", { opacity: 0, y: 20, stagger: 0.1, duration: 1 }, "-=.9")
-    .from(".figure", { opacity: 0, duration: 1.6, ease: "power2.out" }, 0)
+    .from(camera ? ".hero__canvas" : ".figure", { opacity: 0, scale: camera ? 1.04 : 1, duration: 1.6, ease: "power2.out" }, 0)
     .from(".nav", { yPercent: -100, opacity: 0, duration: 1, ease: "power3.out" }, 0.2);
 
-  const loadTl = gsap.timeline()
-    .to(".loader__mark", { clipPath: "inset(0% 0 0 0)", duration: 1.2, ease: "power3.inOut" })
-    .to(count, {
-      v: 100, duration: 1.6, ease: "power2.inOut",
-      onUpdate: () => { $(".loader__count").textContent = Math.round(count.v); gsap.set(".loader__bar span", { scaleX: count.v / 100 }); }
-    }, 0.2);
+  const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+  await Promise.race([
+    Promise.all([document.fonts ? document.fonts.ready : null, camera ? tour.ready : null]),
+    wait(8000)
+  ]);
+  await wait(Math.max(0, 700 - (performance.now() - loaderShownAt)));
 
-  Promise.all([
-    document.fonts ? document.fonts.ready : Promise.resolve(),
-    new Promise((r) => (document.readyState === "complete" ? r() : window.addEventListener("load", r))),
-    new Promise((r) => loadTl.eventCallback("onComplete", r))
-  ]).then(() => {
-    gsap.timeline()
-      .to(".loader__mark, .loader__bar, .loader__count", { y: -30, opacity: 0, stagger: 0.06, duration: 0.6, ease: "power2.in" })
-      .to(".loader", { yPercent: -100, duration: 1.1, ease: "power4.inOut" }, "-=.1")
-      .add(() => {
-        document.body.classList.remove("is-loading");
-        $(".loader").remove();
-        if (lenis) lenis.start();
-        ScrollTrigger.refresh();
-        intro.play();
-      }, "-=.5");
-  });
+  gsap.timeline()
+    .to(".loader__mark, .loader__bar", { y: -24, opacity: 0, stagger: 0.06, duration: 0.45, ease: "power2.in" })
+    .to(".loader", { yPercent: -100, duration: 0.9, ease: "power4.inOut" }, "-=.1")
+    .add(() => {
+      document.body.classList.remove("is-loading");
+      $(".loader").remove();
+      if (lenis) lenis.start();
+      ScrollTrigger.refresh();
+      intro.play();
+    }, "-=.45");
 })();
