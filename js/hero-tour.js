@@ -38,19 +38,20 @@
     { t: 1.00, img: "suit", cx: 0.40, cy: 0.48, z: 1.15, end: true }
   ];
 
-  /* ---- preload, started as soon as this file runs ---- */
+  /* ---- preload, started on first use so the video style never downloads these photos ---- */
   const listeners = new Set();
   let loaded = 0;
   const total = Object.keys(IMAGES).length;
   const images = {};
-  const ready = Promise.all(Object.entries(IMAGES).map(([key, src]) => new Promise((resolve) => {
+  let readyPromise = null;
+  const start = () => readyPromise || (readyPromise = Promise.all(Object.entries(IMAGES).map(([key, src]) => new Promise((resolve) => {
     const img = new Image();
     img.decoding = "async";
     const done = (ok) => { loaded += 1; if (ok) images[key] = img; listeners.forEach((fn) => fn(loaded, total)); resolve(); };
     img.onload = () => (img.decode ? img.decode().catch(() => {}) : Promise.resolve()).then(() => done(true));
     img.onerror = () => done(false);
     img.src = src;
-  }))).then(() => images);
+  }))).then(() => images));
 
   const onProgress = (fn) => { listeners.add(fn); fn(loaded, total); return () => listeners.delete(fn); };
 
@@ -126,5 +127,5 @@
     return { render, size };
   }
 
-  window.AngelicoHeroTour = { IMAGES, SHOTS, ready, onProgress, create, get loaded() { return { ...images }; } };
+  window.AngelicoHeroTour = { IMAGES, SHOTS, start, get ready() { return start(); }, onProgress, create, get loaded() { return { ...images }; } };
 })();

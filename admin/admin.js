@@ -544,8 +544,8 @@
       ${itemList("hero.stages", { titleKey: "title", fixed: true, noun: "Step", fields: [
         { key: "num", label: "Numeral" }, { key: "title", label: "Title" }, { key: "text", label: "Text", type: "textarea", wide: true }] })}`)}
     ${card("Hero style", `<div class="grid2">
-      ${fld({ label: "What the opening scroll shows", path: "hero.mode", type: "select", options: [["camera", "Camera tour over the suit photos"], ["video", "Dressing video (frame sequence)"], ["illustration", "Illustrated figure"]], hint: "Camera tour is the fastest on phones. The video downloads hundreds of frames and can stutter on mobile." })}
-      ${fld({ label: "Use the video frames (video style only)", path: "hero.video.enabled", type: "check", hint: "Only used when the style is Dressing video." })}
+      ${fld({ label: "What the opening scroll shows", path: "hero.mode", type: "select", options: [["video", "Dressing video (frame sequence)"], ["camera", "Camera tour over the suit photos"], ["illustration", "Illustrated figure"]], hint: "The video downloads hundreds of frames and can stutter on slow phones. Camera tour is the lightest option." })}
+      ${fld({ label: "Use the video frames when available", path: "hero.video.enabled", type: "check", hint: "Only used when the style is Dressing video." })}
       ${fld({ label: "Frames manifest path", path: "hero.video.manifest", loc: false, hint: "Created by scripts/extract-frames.sh. Leave as is." })}</div>`)}`;
 
   /* Story */

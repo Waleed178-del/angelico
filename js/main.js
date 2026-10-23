@@ -13,9 +13,8 @@
   const tour = window.AngelicoHeroTour;
   const loaderBar = $(".loader__bar span");
   const loaderShownAt = performance.now();
-  let contentDone = 0, imgDone = 0, imgTotal = tour ? Object.keys(tour.IMAGES).length : 0;
+  let contentDone = 0, imgDone = 0, imgTotal = 0;
   const setBar = () => { if (loaderBar) loaderBar.style.transform = `scaleX(${(contentDone + imgDone) / (1 + imgTotal)})`; };
-  if (tour) tour.onProgress((n, total) => { imgDone = n; imgTotal = total; setBar(); });
   if (hasGsap && !reduced) gsap.to(".loader__mark", { clipPath: "inset(0% 0 0 0)", duration: 0.8, ease: "power3.inOut" });
 
   /* ---------------- Content (edited from /admin) ---------------- */
@@ -127,12 +126,14 @@
   burger.addEventListener("click", () => toggleMenu(burger.getAttribute("aria-expanded") !== "true"));
 
   /* ---------------- Hero style ----------------
-     camera (default): virtual camera over the suit photos, see js/hero-tour.js
-     video: the Kling frame sequence      illustration: the drawn figure */
+     video (default): the Kling frame sequence, a man putting on his suit
+     camera: virtual camera over the suit photos, see js/hero-tour.js      illustration: the drawn figure */
   const hero = $("#hero");
-  const heroMode = content.hero?.mode || "camera";
+  const heroMode = content.hero?.mode || "video";
   let camera = null;
   if (heroMode === "camera" && tour) {
+    tour.onProgress((n, total) => { imgDone = n; imgTotal = total; setBar(); });
+    tour.start();
     hero.classList.add("has-camera");
     camera = tour.create($(".hero__canvas"), { rtl });
     tour.ready.then((imgs) => {
