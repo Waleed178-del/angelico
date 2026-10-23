@@ -177,10 +177,8 @@
     setText(".collections__head .eyebrow", L(col.eyebrow));
     setText(".collections__head .display", L(col.title));
     const colItems = (col.items || []).filter((i) => i.visible !== false);
-    // The track always scrolls left to right. In Arabic the first item sits at the right end.
-    const colOrder = colItems.map((it, i) => ({ it, i }));
-    if (rtl) colOrder.reverse();
-    $(".collections__track").innerHTML = colOrder.map(({ it, i }) => `
+    // A native scroller follows the page direction, so Arabic starts at the right on its own.
+    $(".collections__track").innerHTML = colItems.map((it, i) => `
       <article class="card" data-cursor>
         <div class="card__art"><img src="${esc(safeUrl(it.image))}" alt="${esc(L(it.alt) || L(it.title))}" width="900" height="1125" loading="lazy" decoding="async" /></div>
         <div class="card__meta"><small>${String(i + 1).padStart(2, "0")}</small><h3>${esc(L(it.title))}</h3><p>${esc(L(it.text))}</p></div>
@@ -229,6 +227,10 @@
     $(".footer__cols").innerHTML = (f.columns || []).map((colm) => `
       <div><h4>${esc(L(colm.title))}</h4><p>${(colm.links || []).map((l) =>
         l.url ? `<a href="${esc(safeUrl(l.url))}">${esc(L(l.label))}</a>` : esc(L(l.label))).join("<br />")}</p></div>`).join("");
+    setText(".footer__tagline", L(s.description));
+    setText(".footer__top span", ui(c, "backToTop") || (rtl ? "العودة إلى الأعلى" : "Back to top"));
+    const navBtns = $$(".collections__nav button");
+    navBtns.forEach((btn) => btn.setAttribute("aria-label", ui(c, btn.dataset.dir === "-1" ? "prev" : "next") || (btn.dataset.dir === "-1" ? (rtl ? "السابق" : "Previous") : (rtl ? "التالي" : "Next"))));
     setText(".footer__legal", String(L(f.legal)).replace("{year}", new Date().getFullYear()));
 
     if (opts.preview) {

@@ -381,7 +381,8 @@
     ["soldOut", "Sold out label"], ["priceOnRequest", "Price on request"],
     ["formName", "Form: name"], ["formEmail", "Form: email"], ["formInterest", "Form: interest"], ["formDate", "Form: preferred date"],
     ["formInvalid", "Form: invalid input"], ["formSending", "Form: sending"], ["formFailed", "Form: failed"], ["formNotConnected", "Form: not connected"],
-    ["emailSubject", "Email subject for requests"], ["langSwitch", "Language button text", "EN is shown on the English page (the Arabic word), AR on the Arabic page."]
+    ["emailSubject", "Email subject for requests"], ["langSwitch", "Language button text", "EN is shown on the English page (the Arabic word), AR on the Arabic page."],
+    ["backToTop", "Footer: back to top"], ["prev", "Wardrobe: previous button"], ["next", "Wardrobe: next button"]
   ];
   const VIEWS = {};
   const AFTER = {};
@@ -542,8 +543,9 @@
     ${card("The four dressing steps", `<p class="muted" style="margin-top:0">These captions appear one by one as the suit goes on. There are always four, matching the animation.</p>
       ${itemList("hero.stages", { titleKey: "title", fixed: true, noun: "Step", fields: [
         { key: "num", label: "Numeral" }, { key: "title", label: "Title" }, { key: "text", label: "Text", type: "textarea", wide: true }] })}`)}
-    ${card("Hero video", `<div class="grid2">
-      ${fld({ label: "Use the video frames when available", path: "hero.video.enabled", type: "check", hint: "Turn off to always show the illustrated figure." })}
+    ${card("Hero style", `<div class="grid2">
+      ${fld({ label: "What the opening scroll shows", path: "hero.mode", type: "select", options: [["video", "Dressing video (frame sequence)"], ["camera", "Camera tour over the suit photos"], ["illustration", "Illustrated figure"]], hint: "The video downloads hundreds of frames and can stutter on slow phones. Camera tour is the lightest option." })}
+      ${fld({ label: "Use the video frames when available", path: "hero.video.enabled", type: "check", hint: "Only used when the style is Dressing video." })}
       ${fld({ label: "Frames manifest path", path: "hero.video.manifest", loc: false, hint: "Created by scripts/extract-frames.sh. Leave as is." })}</div>`)}`;
 
   /* Story */

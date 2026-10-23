@@ -155,7 +155,8 @@
           "ar": "أزرار من القرن ومنديل حرير مطويّ. لا شيء صاخب، ولا شيء ناقص."
         }
       }
-    ]
+    ],
+    "mode": "video"
   },
   "manifesto": {
     "eyebrow": {
@@ -750,6 +751,18 @@
     "langSwitch": {
       "en": "عربي",
       "ar": "English"
+    },
+    "backToTop": {
+      "en": "Back to top",
+      "ar": "العودة إلى الأعلى"
+    },
+    "prev": {
+      "en": "Previous",
+      "ar": "السابق"
+    },
+    "next": {
+      "en": "Next",
+      "ar": "التالي"
     }
   }
 }
