@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Angelico | By Mhd Al Sousi</title>
+  <meta name="description" content="Angelico by Mhd Al Sousi. Bespoke tailoring and luxury menswear." />
+  <meta name="theme-color" content="#121a24" />
+  <link rel="icon" type="image/png" href="assets/brand/logo-mark.png" />
+  <meta property="og:image" content="assets/brand/logo-original.jpg" />
+  <link rel="preload" as="image" href="assets/brand/logo-lockup.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="is-loading">
+
+  <!-- PRELOADER -->
+  <div class="loader" aria-hidden="true">
+    <div class="loader__mark"><img src="assets/brand/logo-mark.png" alt="" data-logo="mark" /></div>
+    <div class="loader__bar"><span></span></div>
+  </div>
+
+  <!-- CURSOR -->
+  <div class="cursor" aria-hidden="true"><span class="cursor__dot"></span><span class="cursor__ring"><em>View</em></span></div>
+  <div class="grain" aria-hidden="true"></div>
+
+  <!-- NAV -->
+  <header class="nav">
+    <a href="#top" class="nav__brand" aria-label="Angelico home">
+      <img src="assets/brand/logo-mark.png" alt="" class="nav__mark" data-logo="mark" />
+      <img src="assets/brand/logo-wordmark.png" alt="Angelico" class="nav__word" data-logo="wordmark" />
+    </a>
+    <nav class="nav__links" aria-label="Primary"></nav>
+    <div class="nav__actions">
+      <button class="nav__lang" data-magnetic aria-label="Language" hidden></button>
+      <button class="nav__bag" data-magnetic>
+        <svg class="nav__bag-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1.2 12.2a1 1 0 0 1-1 .8H7.2a1 1 0 0 1-1-.8L5 8Z"/><path d="M9 10V6.5a3 3 0 0 1 6 0V10"/></svg>
+        <span class="nav__bag-label sr-only">Bag</span><span class="nav__count">0</span>
+      </button>
+      <button class="nav__burger" aria-label="Open menu" aria-expanded="false"><span></span><span></span></button>
+    </div>
+  </header>
+
+  <div class="menu" aria-hidden="true">
+    <ol></ol>
+  </div>
+
+  <main id="top">
+
+    <!-- HERO: pinned scroll sequence, a man being dressed in his suit -->
+    <section class="hero" id="hero">
+      <div class="hero__pin">
+        <div class="hero__bg">
+          <div class="hero__glow"></div>
+          <div class="hero__giant" aria-hidden="true"></div>
+        </div>
+
+        <!-- Video frame sequence (Kling output). Activated by js/config.js -->
+        <canvas class="hero__canvas" aria-hidden="true"></canvas>
+        <div class="hero__shade" aria-hidden="true"></div>
+
+        <!-- Fallback / default: animated illustrated figure -->
+        <svg class="figure" viewBox="0 0 600 900" role="img" aria-label="A man being dressed in a tailored suit">
+          <defs>
+            <linearGradient id="gSkin" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#2a3646"/><stop offset="1" stop-color="#1b2431"/>
+            </linearGradient>
+            <linearGradient id="gShirt" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#f6f2ea"/><stop offset="1" stop-color="#d9d2c4"/>
+            </linearGradient>
+            <linearGradient id="gJacketL" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0" stop-color="#162030"/><stop offset="1" stop-color="#2b3a4e"/>
+            </linearGradient>
+            <linearGradient id="gJacketR" x1="1" y1="0" x2="0" y2="0">
+              <stop offset="0" stop-color="#121a27"/><stop offset="1" stop-color="#2b3a4e"/>
+            </linearGradient>
+            <linearGradient id="gTie" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#d9bd7f"/><stop offset="1" stop-color="#9c7b3f"/>
+            </linearGradient>
+            <linearGradient id="gGold" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#f0dca8"/><stop offset="1" stop-color="#a8843f"/>
+            </linearGradient>
+            <clipPath id="clipShirt"><rect class="clip-shirt" x="0" y="150" width="600" height="0"/></clipPath>
+            <clipPath id="clipTie"><rect class="clip-tie" x="250" y="215" width="100" height="0"/></clipPath>
+            <pattern id="pinstripe" width="9" height="9" patternUnits="userSpaceOnUse">
+              <line x1="4.5" y1="0" x2="4.5" y2="9" stroke="#ffffff" stroke-opacity=".045" stroke-width="1"/>
+            </pattern>
+          </defs>
+
+          <!-- Body (mannequin silhouette) -->
+          <g class="f-body">
+            <ellipse cx="300" cy="96" rx="50" ry="64" fill="url(#gSkin)" />
+            <path d="M276 150 L276 206 Q300 218 324 206 L324 150 Z" fill="url(#gSkin)"/>
+            <path d="M300 206 C250 206 180 222 150 246 C128 264 124 300 122 340 L112 560 Q110 640 118 720 L150 722 Q160 640 168 560 L186 380 L192 600 Q190 700 196 800 L404 800 Q410 700 408 600 L414 380 L432 560 Q440 640 450 722 L482 720 Q490 640 488 560 L478 340 C476 300 472 264 450 246 C420 222 350 206 300 206 Z" fill="url(#gSkin)"/>
+            <path class="f-outline" d="M300 206 C250 206 180 222 150 246 C128 264 124 300 122 340 L112 560 Q110 640 118 720 M482 720 Q490 640 488 560 L478 340 C476 300 472 264 450 246 C420 222 350 206 300 206" fill="none" stroke="#c8a96a" stroke-opacity=".35" stroke-width="1.2"/>
+          </g>
+
+          <!-- Shirt -->
+          <g class="f-shirt" clip-path="url(#clipShirt)">
+            <path d="M300 214 C254 214 190 228 160 250 C140 266 136 300 134 340 L124 560 Q122 640 128 712 L160 714 Q168 640 176 560 L194 386 L198 600 Q196 700 202 800 L398 800 Q404 700 402 600 L406 386 L424 560 Q432 640 440 714 L472 712 Q478 640 476 560 L466 340 C464 300 460 266 440 250 C410 228 346 214 300 214 Z" fill="url(#gShirt)"/>
+            <path d="M300 230 L300 800" stroke="#c9c1b1" stroke-width="1.2"/>
+            <g fill="#bfb6a5"><circle cx="300" cy="300" r="3"/><circle cx="300" cy="380" r="3"/><circle cx="300" cy="460" r="3"/><circle cx="300" cy="540" r="3"/><circle cx="300" cy="620" r="3"/></g>
+            <!-- collar -->
+            <path d="M270 196 L300 236 L262 262 L254 214 Z" fill="#fbf8f2" stroke="#cfc7b7" stroke-width="1"/>
+            <path d="M330 196 L300 236 L338 262 L346 214 Z" fill="#fbf8f2" stroke="#cfc7b7" stroke-width="1"/>
+            <!-- cuffs -->
+            <rect x="122" y="690" width="40" height="30" rx="3" fill="#fbf8f2"/>
+            <rect x="438" y="690" width="40" height="30" rx="3" fill="#fbf8f2"/>
+          </g>
+
+          <!-- Tie -->
+          <g class="f-tie" clip-path="url(#clipTie)">
+            <path d="M288 226 L312 226 L316 248 L284 248 Z" fill="url(#gTie)"/>
+            <path d="M286 248 L314 248 L330 560 L300 596 L270 560 Z" fill="url(#gTie)"/>
+            <path d="M300 250 L300 590" stroke="#fff" stroke-opacity=".18" stroke-width="1"/>
+          </g>
+
+          <!-- Jacket: two panels that slide on, lapels echo the Angelico mark -->
+          <g class="f-jacket">
+            <g class="f-jacket-l">
+              <path d="M298 212 C252 212 186 226 156 248 C134 264 130 300 128 340 L116 560 Q114 640 120 700 L166 702 Q172 640 180 560 L192 400 L194 620 Q192 700 194 808 L300 808 L300 596 L232 330 Z" fill="url(#gJacketL)"/>
+              <path d="M298 212 C252 212 186 226 156 248 C134 264 130 300 128 340 L116 560 Q114 640 120 700 L166 702 Q172 640 180 560 L192 400 L194 620 Q192 700 194 808 L300 808 L300 596 L232 330 Z" fill="url(#pinstripe)"/>
+              <!-- left lapel -->
+              <path class="lapel" d="M262 206 L232 330 L300 596 L250 330 L246 300 L214 258 Z" fill="#1d2939" stroke="#c8a96a" stroke-opacity=".55" stroke-width="1.2"/>
+              <!-- pocket square (wearer's left = viewer's right lives on right panel); flap pocket -->
+              <path d="M212 640 L272 640" stroke="#0c121b" stroke-width="3" stroke-linecap="round"/>
+            </g>
+            <g class="f-jacket-r">
+              <path d="M302 212 C348 212 414 226 444 248 C466 264 470 300 472 340 L484 560 Q486 640 480 700 L434 702 Q428 640 420 560 L408 400 L406 620 Q408 700 406 808 L300 808 L300 596 L368 330 Z" fill="url(#gJacketR)"/>
+              <path d="M302 212 C348 212 414 226 444 248 C466 264 470 300 472 340 L484 560 Q486 640 480 700 L434 702 Q428 640 420 560 L408 400 L406 620 Q408 700 406 808 L300 808 L300 596 L368 330 Z" fill="url(#pinstripe)"/>
+              <path class="lapel" d="M338 206 L368 330 L300 596 L350 330 L354 300 L386 258 Z" fill="#1d2939" stroke="#c8a96a" stroke-opacity=".55" stroke-width="1.2"/>
+              <path d="M342 410 L392 410" stroke="#0c121b" stroke-width="3" stroke-linecap="round"/>
+              <path d="M328 640 L388 640" stroke="#0c121b" stroke-width="3" stroke-linecap="round"/>
+            </g>
+          </g>
+
+          <!-- Finishing: buttons (the two dots of the mark), pocket square, cufflinks -->
+          <g class="f-finish">
+            <circle class="btn" cx="300" cy="620" r="6" fill="url(#gGold)"/>
+            <circle class="btn" cx="300" cy="660" r="6" fill="url(#gGold)"/>
+            <path class="square" d="M346 410 L362 386 L372 404 L382 384 L390 410 Z" fill="url(#gGold)"/>
+            <circle class="cuff" cx="142" cy="706" r="5" fill="url(#gGold)"/>
+            <circle class="cuff" cx="458" cy="706" r="5" fill="url(#gGold)"/>
+            <path class="f-trace" d="M300 212 C252 212 186 226 156 248 C134 264 130 300 128 340 L116 560 Q114 640 120 700 M300 212 C348 212 414 226 444 248 C466 264 470 300 472 340 L484 560 Q486 640 480 700 M262 206 L232 330 L300 596 L368 330 L338 206" fill="none" stroke="url(#gGold)" stroke-width="1.6"/>
+          </g>
+        </svg>
+
+        <!-- Stage captions -->
+        <div class="hero__intro">
+          <p class="eyebrow"></p>
+          <h1 class="hero__title"></h1>
+          <p class="hero__scroll"></p>
+        </div>
+
+        <ol class="stages"></ol>
+
+        <div class="hero__progress" aria-hidden="true"><span></span></div>
+
+        <div class="hero__final">
+          <img src="assets/brand/logo-lockup.png" alt="Angelico by Mhd Al Sousi" data-logo="lockup" />
+        </div>
+      </div>
+    </section>
+
+    <!-- MANIFESTO -->
+    <section class="manifesto" data-section="manifesto">
+      <p class="eyebrow"></p>
+      <p class="manifesto__text" data-split></p>
+      <div class="manifesto__sig"></div>
+    </section>
+
+    <!-- MARQUEE -->
+    <div class="marquee" aria-hidden="true" data-section="marquee">
+      <div class="marquee__track"></div>
+    </div>
+
+    <!-- COLLECTIONS: a horizontal row the visitor scrolls (swipe, trackpad or arrows) -->
+    <section class="collections" id="collections" data-section="collections">
+      <div class="collections__pin">
+        <header class="collections__head">
+          <div>
+            <p class="eyebrow"></p>
+            <h2 class="display"></h2>
+          </div>
+          <div class="collections__nav">
+            <button type="button" data-dir="-1" aria-label="Previous"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+            <button type="button" data-dir="1" aria-label="Next"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+          </div>
+        </header>
+        <div class="collections__track"></div>
+      </div>
+    </section>
+
+    <!-- ATELIER: process with stacking cards -->
+    <section class="atelier" id="atelier" data-section="atelier">
+      <header class="atelier__head">
+        <p class="eyebrow"></p>
+        <h2 class="display" data-split></h2>
+      </header>
+      <div class="stats"></div>
+      <div class="steps"></div>
+    </section>
+
+    <!-- SHOP -->
+    <section class="shop" id="shop" data-section="shop">
+      <header class="shop__head">
+        <div><p class="eyebrow"></p><h2 class="display"></h2></div>
+        <div class="filters" role="tablist"></div>
+      </header>
+      <div class="grid" id="grid"></div>
+    </section>
+
+    <!-- QUOTE / PARALLAX -->
+    <section class="quote" data-section="quote">
+      <div class="quote__mark"><img src="assets/brand/logo-mark.png" alt="" data-logo="mark" /></div>
+      <blockquote data-split></blockquote>
+    </section>
+
+    <!-- APPOINTMENT -->
+    <section class="appointment" id="appointment" data-section="appointment">
+      <div class="appointment__inner">
+        <p class="eyebrow"></p>
+        <h2 class="display"></h2>
+        <form class="form" novalidate>
+          <input type="text" name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
+          <label><span>Name</span><input name="name" required autocomplete="name" /></label>
+          <label><span>Email</span><input name="email" type="email" required autocomplete="email" /></label>
+          <label><span>Interest</span>
+            <select name="interest"></select>
+          </label>
+          <label><span>Preferred date</span><input name="date" type="date" /></label>
+          <button type="submit" class="btn-gold" data-magnetic><span></span></button>
+          <p class="form__msg" role="status" aria-live="polite"></p>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer__inner">
+      <div class="footer__brand">
+        <img src="assets/brand/logo-lockup.png" alt="Angelico by Mhd Al Sousi" class="footer__logo" data-logo="lockup" />
+        <p class="footer__tagline"></p>
+      </div>
+      <div class="footer__cols"></div>
+    </div>
+    <div class="footer__bar">
+      <p class="footer__legal"></p>
+      <a href="#top" class="footer__top"><span>Back to top</span> <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg></a>
+    </div>
+  </footer>
+
+  <div class="toast" role="status" aria-live="polite"></div>
+
+  <script src="js/hero-tour.js"></script>
+  <script src="js/vendor/gsap.min.js"></script>
+  <script src="js/vendor/ScrollTrigger.min.js"></script>
+  <script src="js/vendor/lenis.min.js"></script>
+  <script src="js/supabase-config.js"></script>
+  <script src="js/supabase-lite.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/content.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
