@@ -1,0 +1,768 @@
+{
+  "version": 1,
+  "settings": {
+    "siteTitle": {
+      "en": "Angelico | By Mhd Al Sousi",
+      "ar": "أنجليكو | بواسطة محمد السوسي"
+    },
+    "description": {
+      "en": "Angelico by Mhd Al Sousi. Bespoke tailoring and luxury menswear.",
+      "ar": "أنجليكو من محمد السوسي. خياطة راقية وأزياء رجالية فاخرة."
+    },
+    "currency": {
+      "code": "USD",
+      "locale": "en-US",
+      "localeAr": "ar-u-nu-latn"
+    },
+    "contactEmail": "",
+    "formEndpoint": "",
+    "logos": {
+      "mark": "assets/brand/logo-mark.png",
+      "wordmark": "assets/brand/logo-wordmark.png",
+      "lockup": "assets/brand/logo-lockup.png"
+    },
+    "theme": {
+      "gold": "#c8a96a",
+      "goldLight": "#e9d6a6",
+      "navy": "#2a3a4a",
+      "navyDark": "#121a24"
+    },
+    "defaultLang": "en",
+    "arabicEnabled": true
+  },
+  "nav": [
+    {
+      "label": {
+        "en": "Collections",
+        "ar": "المجموعات"
+      },
+      "href": "#collections"
+    },
+    {
+      "label": {
+        "en": "Atelier",
+        "ar": "المشغل"
+      },
+      "href": "#atelier"
+    },
+    {
+      "label": {
+        "en": "Shop",
+        "ar": "المتجر"
+      },
+      "href": "#shop"
+    },
+    {
+      "label": {
+        "en": "Appointment",
+        "ar": "حجز موعد"
+      },
+      "href": "#appointment"
+    }
+  ],
+  "sections": {
+    "manifesto": true,
+    "marquee": true,
+    "collections": true,
+    "atelier": true,
+    "shop": true,
+    "quote": true,
+    "appointment": true
+  },
+  "hero": {
+    "eyebrow": {
+      "en": "Maison de Tailleur",
+      "ar": "دار الخياطة الراقية"
+    },
+    "line1": {
+      "en": "Dressed",
+      "ar": "أناقتك"
+    },
+    "accent": {
+      "en": "in",
+      "ar": ""
+    },
+    "line2": {
+      "en": "intent.",
+      "ar": "عن قصد."
+    },
+    "scrollHint": {
+      "en": "Scroll to dress",
+      "ar": "مرِّر لتكتمل الإطلالة"
+    },
+    "giantText": {
+      "en": "ANGELICO",
+      "ar": "أنجليكو"
+    },
+    "video": {
+      "enabled": true,
+      "manifest": "assets/sequence/manifest.json"
+    },
+    "stages": [
+      {
+        "num": {
+          "en": "I",
+          "ar": "١"
+        },
+        "title": {
+          "en": "The Shirt",
+          "ar": "القميص"
+        },
+        "text": {
+          "en": "Two fold Egyptian cotton, hand set collar, mother of pearl buttons.",
+          "ar": "قطن مصري مزدوج الخيوط، ياقة مخيطة يدوياً، وأزرار من عرق اللؤلؤ."
+        }
+      },
+      {
+        "num": {
+          "en": "II",
+          "ar": "٢"
+        },
+        "title": {
+          "en": "The Tie",
+          "ar": "ربطة العنق"
+        },
+        "text": {
+          "en": "Seven fold silk, cut on the bias so it falls with quiet weight.",
+          "ar": "حرير بسبع طيّات، مقصوص بزاوية مائلة ليسقط بثقلٍ هادئ."
+        }
+      },
+      {
+        "num": {
+          "en": "III",
+          "ar": "٣"
+        },
+        "title": {
+          "en": "The Jacket",
+          "ar": "السترة"
+        },
+        "text": {
+          "en": "Full floating canvas. Lapels drawn from the Angelico mark.",
+          "ar": "نسيج داخلي عائم بالكامل، وطيّات صدر مستوحاة من شعار أنجليكو."
+        }
+      },
+      {
+        "num": {
+          "en": "IV",
+          "ar": "٤"
+        },
+        "title": {
+          "en": "The Finish",
+          "ar": "اللمسات الأخيرة"
+        },
+        "text": {
+          "en": "Horn buttons, a folded silk square. Nothing loud. Nothing missing.",
+          "ar": "أزرار من القرن ومنديل حرير مطويّ. لا شيء صاخب، ولا شيء ناقص."
+        }
+      }
+    ],
+    "mode": "video"
+  },
+  "manifesto": {
+    "eyebrow": {
+      "en": "The House",
+      "ar": "البيت"
+    },
+    "text": {
+      "en": "A suit is not worn. It is inhabited. At Angelico every garment begins with the man who will carry it, his posture, his stride, the way he enters a room. We cut for that moment.",
+      "ar": "البدلة لا تُرتدى، بل تُسكَن. في أنجليكو تبدأ كل قطعة بالرجل الذي سيحملها: وقفته، وخطوته، وطريقته في دخول الغرفة. نحن نفصّل لتلك اللحظة."
+    },
+    "signName": {
+      "en": "Mhd Al Sousi",
+      "ar": "محمد السوسي"
+    },
+    "signRole": {
+      "en": "Founder & Master Tailor",
+      "ar": "المؤسس وكبير الخياطين"
+    }
+  },
+  "marquee": {
+    "words": [
+      {
+        "en": "Bespoke",
+        "ar": "تفصيل راقٍ"
+      },
+      {
+        "en": "Made to Measure",
+        "ar": "على المقاس"
+      },
+      {
+        "en": "Ceremonial",
+        "ar": "للمناسبات"
+      },
+      {
+        "en": "Evening Wear",
+        "ar": "ملابس السهرة"
+      }
+    ]
+  },
+  "collections": {
+    "eyebrow": {
+      "en": "Collections",
+      "ar": "المجموعات"
+    },
+    "title": {
+      "en": "The Wardrobe",
+      "ar": "الخزانة"
+    },
+    "items": [
+      {
+        "id": "c1",
+        "title": {
+          "en": "Bespoke Suits",
+          "ar": "بدلات التفصيل الخاص"
+        },
+        "text": {
+          "en": "Cut from a pattern drafted for you alone.",
+          "ar": "تُقَصّ من نمطٍ يُرسم لك وحدك."
+        },
+        "image": "assets/products/suit.webp",
+        "alt": {
+          "en": "Navy three piece bespoke suit with gold tie",
+          "ar": "بدلة رسمية ثلاثية القطع باللون الكحلي مع ربطة عنق ذهبية"
+        },
+        "visible": true
+      },
+      {
+        "id": "c2",
+        "title": {
+          "en": "Evening & Tuxedo",
+          "ar": "السهرة والتوكسيدو"
+        },
+        "text": {
+          "en": "Silk peak lapels for the hours after dark.",
+          "ar": "طيّات حرير مدببة لساعات ما بعد الغروب."
+        },
+        "image": "assets/products/tuxedo.webp",
+        "alt": {
+          "en": "Midnight navy tuxedo with peak satin lapels and bow tie",
+          "ar": "توكسيدو كحلي بلون منتصف الليل مع طيّات ساتان مدببة وفيونكة"
+        },
+        "visible": true
+      },
+      {
+        "id": "c3",
+        "title": {
+          "en": "Shirting",
+          "ar": "القمصان"
+        },
+        "text": {
+          "en": "Sea island cotton, hand finished buttonholes.",
+          "ar": "قطن سي آيلاند بعراوي مشغولة يدوياً."
+        },
+        "image": "assets/products/shirting.webp",
+        "alt": {
+          "en": "Crisp white dress shirt with gold silk tie",
+          "ar": "قميص أبيض أنيق مع ربطة عنق حرير ذهبية"
+        },
+        "visible": true
+      },
+      {
+        "id": "c4",
+        "title": {
+          "en": "Outerwear",
+          "ar": "المعاطف"
+        },
+        "text": {
+          "en": "Cashmere overcoats built to outlast seasons.",
+          "ar": "معاطف كشمير تدوم عبر المواسم."
+        },
+        "image": "assets/products/overcoat.webp",
+        "alt": {
+          "en": "Navy double breasted wool overcoat with silk scarf",
+          "ar": "معطف صوف كحلي مزدوج الأزرار مع وشاح حرير"
+        },
+        "visible": true
+      },
+      {
+        "id": "c5",
+        "title": {
+          "en": "Accessories",
+          "ar": "الإكسسوارات"
+        },
+        "text": {
+          "en": "Cufflinks, silk ties, folded squares.",
+          "ar": "أزرار أكمام وربطات حرير ومناديل مطوية."
+        },
+        "image": "assets/products/accessories.webp",
+        "alt": {
+          "en": "Gold cufflink, silk tie and paisley pocket square",
+          "ar": "زر كم ذهبي وربطة حرير ومنديل بنقشة كشمير"
+        },
+        "visible": true
+      },
+      {
+        "id": "c6",
+        "title": {
+          "en": "Footwear",
+          "ar": "الأحذية"
+        },
+        "text": {
+          "en": "Goodyear welted oxfords in burnished calf.",
+          "ar": "أوكسفورد بنعل مخيط بطريقة غودييير من جلد مصقول."
+        },
+        "image": "assets/products/footwear.webp",
+        "alt": {
+          "en": "Brown brogue oxfords with navy trousers and patterned socks",
+          "ar": "حذاء أوكسفورد بني مع بنطلون كحلي وجوارب منقّشة"
+        },
+        "visible": true
+      }
+    ]
+  },
+  "atelier": {
+    "eyebrow": {
+      "en": "The Atelier",
+      "ar": "المشغل"
+    },
+    "title": {
+      "en": "From first measure to final press.",
+      "ar": "من أول قياس إلى الكَيّ الأخير."
+    },
+    "stats": [
+      {
+        "value": 80,
+        "label": {
+          "en": "Hours of handwork per suit",
+          "ar": "ساعة عمل يدوي لكل بدلة"
+        }
+      },
+      {
+        "value": 27,
+        "label": {
+          "en": "Measurements taken",
+          "ar": "قياساً يؤخذ"
+        }
+      },
+      {
+        "value": 3,
+        "label": {
+          "en": "Fittings, minimum",
+          "ar": "بروفات على الأقل"
+        }
+      },
+      {
+        "value": 1,
+        "label": {
+          "en": "Pattern, yours alone",
+          "ar": "نمط واحد، لك وحدك"
+        }
+      }
+    ],
+    "steps": [
+      {
+        "title": {
+          "en": "Consultation",
+          "ar": "الاستشارة"
+        },
+        "text": {
+          "en": "We discuss occasion, lifestyle and the cloth that suits both. Over three hundred bunches from the finest mills.",
+          "ar": "نناقش المناسبة وأسلوب حياتك والقماش الذي يناسبهما، من أكثر من ثلاثمئة عيّنة من أرقى المصانع."
+        }
+      },
+      {
+        "title": {
+          "en": "Measurement",
+          "ar": "القياس"
+        },
+        "text": {
+          "en": "Every slope of the shoulder, every turn of the stance recorded and drafted into a personal paper pattern.",
+          "ar": "كل ميل في الكتف وكل انحناءة في الوقفة تُسجَّل وتتحول إلى نمط ورقي خاص بك."
+        }
+      },
+      {
+        "title": {
+          "en": "Fittings",
+          "ar": "البروفات"
+        },
+        "text": {
+          "en": "A basted fitting, a forward fitting, a finished fitting. The garment learns your body in stages.",
+          "ar": "بروفة أولية، وأخرى متقدمة، وأخيرة نهائية. القطعة تتعلم جسدك على مراحل."
+        }
+      },
+      {
+        "title": {
+          "en": "Delivery",
+          "ar": "التسليم"
+        },
+        "text": {
+          "en": "Pressed by hand, presented in our garment carrier, and kept on file for every commission after.",
+          "ar": "تُكوى يدوياً، وتُقدَّم في حقيبة ملابسنا، وتُحفظ في سجلّك لكل طلب لاحق."
+        }
+      }
+    ]
+  },
+  "shop": {
+    "eyebrow": {
+      "en": "Ready to Wear",
+      "ar": "جاهز للارتداء"
+    },
+    "title": {
+      "en": "The Edit",
+      "ar": "المختارات"
+    },
+    "addLabel": {
+      "en": "Add to bag",
+      "ar": "أضف إلى الحقيبة"
+    },
+    "categories": [
+      {
+        "id": "suits",
+        "label": {
+          "en": "Suits",
+          "ar": "بدلات"
+        }
+      },
+      {
+        "id": "outerwear",
+        "label": {
+          "en": "Outerwear",
+          "ar": "معاطف"
+        }
+      },
+      {
+        "id": "foot",
+        "label": {
+          "en": "Footwear",
+          "ar": "أحذية"
+        }
+      },
+      {
+        "id": "acc",
+        "label": {
+          "en": "Accessories",
+          "ar": "إكسسوارات"
+        }
+      }
+    ],
+    "products": [
+      {
+        "id": "p1",
+        "name": {
+          "en": "The Sousi Three Piece",
+          "ar": "بدلة السوسي ثلاثية القطع"
+        },
+        "note": {
+          "en": "Super 150s wool, midnight navy",
+          "ar": "صوف سوبر 150، كحلي منتصف الليل"
+        },
+        "price": 3200,
+        "category": "suits",
+        "tag": {
+          "en": "Signature",
+          "ar": "توقيع"
+        },
+        "image": "assets/products/suit.webp",
+        "alt": {
+          "en": "Navy three piece suit with gold tie",
+          "ar": "بدلة كحلية ثلاثية القطع مع ربطة عنق ذهبية"
+        },
+        "visible": true,
+        "soldOut": false
+      },
+      {
+        "id": "p2",
+        "name": {
+          "en": "Peak Lapel Tuxedo",
+          "ar": "توكسيدو بطيّات مدببة"
+        },
+        "note": {
+          "en": "Satin facings, waistcoat included",
+          "ar": "ساتان على الطيّات والصدرية مشمولة"
+        },
+        "price": 3900,
+        "category": "suits",
+        "tag": {
+          "en": "Evening",
+          "ar": "سهرة"
+        },
+        "image": "assets/products/tuxedo.webp",
+        "alt": {
+          "en": "Navy tuxedo with black satin peak lapels",
+          "ar": "توكسيدو كحلي بطيّات ساتان سوداء مدببة"
+        },
+        "visible": true,
+        "soldOut": false
+      },
+      {
+        "id": "p3",
+        "name": {
+          "en": "Double Breasted Overcoat",
+          "ar": "معطف مزدوج الأزرار"
+        },
+        "note": {
+          "en": "Textured wool, navy",
+          "ar": "صوف منقوش، كحلي"
+        },
+        "price": 4400,
+        "category": "outerwear",
+        "tag": {
+          "en": "New",
+          "ar": "جديد"
+        },
+        "image": "assets/products/overcoat.webp",
+        "alt": {
+          "en": "Navy double breasted overcoat",
+          "ar": "معطف كحلي مزدوج الأزرار"
+        },
+        "visible": true,
+        "soldOut": false
+      },
+      {
+        "id": "p4",
+        "name": {
+          "en": "Cap Toe Brogue Oxford",
+          "ar": "حذاء أوكسفورد بمقدمة مثقّبة"
+        },
+        "note": {
+          "en": "Burnished brown calf, Goodyear welted",
+          "ar": "جلد عجل بني مصقول، نعل مخيط يدوياً"
+        },
+        "price": 980,
+        "category": "foot",
+        "tag": {
+          "en": "",
+          "ar": ""
+        },
+        "image": "assets/products/footwear.webp",
+        "alt": {
+          "en": "Brown brogue oxford shoes",
+          "ar": "حذاء أوكسفورد بني بنقوش بروغ"
+        },
+        "visible": true,
+        "soldOut": false
+      },
+      {
+        "id": "p5",
+        "name": {
+          "en": "Seven Fold Silk Tie",
+          "ar": "ربطة عنق حرير بسبع طيّات"
+        },
+        "note": {
+          "en": "Gold grenadine weave",
+          "ar": "نسيج غرينادين ذهبي"
+        },
+        "price": 260,
+        "category": "acc",
+        "tag": {
+          "en": "Atelier",
+          "ar": "المشغل"
+        },
+        "image": "assets/products/tie.webp",
+        "alt": {
+          "en": "Gold silk grenadine tie",
+          "ar": "ربطة عنق حرير ذهبية بنسيج غرينادين"
+        },
+        "visible": true,
+        "soldOut": false
+      },
+      {
+        "id": "p6",
+        "name": {
+          "en": "Gold and Lapis Cufflinks",
+          "ar": "أزرار أكمام ذهبية ولازوردية"
+        },
+        "note": {
+          "en": "18k gold vermeil",
+          "ar": "فضة مطلية بذهب عيار 18"
+        },
+        "price": 680,
+        "category": "acc",
+        "tag": {
+          "en": "",
+          "ar": ""
+        },
+        "image": "assets/products/cufflinks.webp",
+        "alt": {
+          "en": "Gold cufflink with navy stone on a white cuff",
+          "ar": "زر كم ذهبي بحجر كحلي على كم قميص أبيض"
+        },
+        "visible": true,
+        "soldOut": false
+      }
+    ]
+  },
+  "quote": {
+    "text": {
+      "en": "Elegance is the only beauty that never fades.",
+      "ar": "الأناقة هي الجمال الوحيد الذي لا يذبل."
+    }
+  },
+  "appointment": {
+    "eyebrow": {
+      "en": "Private Appointment",
+      "ar": "موعد خاص"
+    },
+    "title": {
+      "en": "Begin your commission.",
+      "ar": "ابدأ طلبك."
+    },
+    "button": {
+      "en": "Request appointment",
+      "ar": "اطلب موعداً"
+    },
+    "interests": [
+      {
+        "en": "Bespoke Suit",
+        "ar": "بدلة تفصيل خاص"
+      },
+      {
+        "en": "Evening Wear",
+        "ar": "ملابس سهرة"
+      },
+      {
+        "en": "Wedding",
+        "ar": "زفاف"
+      },
+      {
+        "en": "Shirting",
+        "ar": "قمصان"
+      }
+    ],
+    "success": {
+      "en": "Thank you. The atelier will contact you shortly.",
+      "ar": "شكراً لك. سيتواصل معك المشغل قريباً."
+    }
+  },
+  "footer": {
+    "columns": [
+      {
+        "title": {
+          "en": "Visit",
+          "ar": "زيارة"
+        },
+        "links": [
+          {
+            "label": {
+              "en": "By appointment only",
+              "ar": "بموعد مسبق فقط"
+            },
+            "url": ""
+          }
+        ]
+      },
+      {
+        "title": {
+          "en": "Follow",
+          "ar": "تابعنا"
+        },
+        "links": [
+          {
+            "label": {
+              "en": "Instagram",
+              "ar": "إنستغرام"
+            },
+            "url": "#"
+          },
+          {
+            "label": {
+              "en": "Pinterest",
+              "ar": "بنترست"
+            },
+            "url": "#"
+          }
+        ]
+      },
+      {
+        "title": {
+          "en": "House",
+          "ar": "البيت"
+        },
+        "links": [
+          {
+            "label": {
+              "en": "Atelier",
+              "ar": "المشغل"
+            },
+            "url": "#atelier"
+          },
+          {
+            "label": {
+              "en": "Shop",
+              "ar": "المتجر"
+            },
+            "url": "#shop"
+          }
+        ]
+      }
+    ],
+    "legal": {
+      "en": "© {year} Angelico by Mhd Al Sousi. All rights reserved.",
+      "ar": "© {year} أنجليكو بواسطة محمد السوسي. جميع الحقوق محفوظة."
+    }
+  },
+  "ui": {
+    "all": {
+      "en": "All",
+      "ar": "الكل"
+    },
+    "bag": {
+      "en": "Bag",
+      "ar": "الحقيبة"
+    },
+    "addedToBag": {
+      "en": "{name} added",
+      "ar": "أُضيف {name} إلى الحقيبة"
+    },
+    "soldOut": {
+      "en": "Sold out",
+      "ar": "نفدت الكمية"
+    },
+    "priceOnRequest": {
+      "en": "Price on request",
+      "ar": "السعر عند الطلب"
+    },
+    "formName": {
+      "en": "Name",
+      "ar": "الاسم"
+    },
+    "formEmail": {
+      "en": "Email",
+      "ar": "البريد الإلكتروني"
+    },
+    "formInterest": {
+      "en": "Interest",
+      "ar": "الاهتمام"
+    },
+    "formDate": {
+      "en": "Preferred date",
+      "ar": "التاريخ المفضل"
+    },
+    "formInvalid": {
+      "en": "Please share your name and a valid email.",
+      "ar": "يرجى إدخال اسمك وبريد إلكتروني صحيح."
+    },
+    "formSending": {
+      "en": "Sending...",
+      "ar": "جارٍ الإرسال..."
+    },
+    "formFailed": {
+      "en": "We could not send your request. Please try again shortly.",
+      "ar": "تعذّر إرسال طلبك. يرجى المحاولة لاحقاً."
+    },
+    "formNotConnected": {
+      "en": "This form is not connected yet. Please contact the atelier directly.",
+      "ar": "هذا النموذج غير متصل بعد. يرجى التواصل مع المشغل مباشرة."
+    },
+    "emailSubject": {
+      "en": "Appointment request",
+      "ar": "طلب موعد"
+    },
+    "langSwitch": {
+      "en": "عربي",
+      "ar": "English"
+    },
+    "backToTop": {
+      "en": "Back to top",
+      "ar": "العودة إلى الأعلى"
+    },
+    "prev": {
+      "en": "Previous",
+      "ar": "السابق"
+    },
+    "next": {
+      "en": "Next",
+      "ar": "التالي"
+    }
+  }
+}
